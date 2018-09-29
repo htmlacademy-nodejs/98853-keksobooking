@@ -1,4 +1,4 @@
-
+'use strict';
 const VERSION = `0.0.1`;
 const AUTHOR = `Rinat Sadykov`;
 const PROJECT_NAME = `nodejs-intensive`;
@@ -6,21 +6,21 @@ const PROJECT_NAME = `nodejs-intensive`;
 const command = process.argv[2];
 
 const showAllComands = () => {
-  Object.entries(commandActions).forEach(elem => {
+  Object.entries(commandActions).forEach((elem) => {
     console.log(`${elem[0]} - ${elem[1].description}`);
-  })
-}
+  });
+};
 
 const showVersion = () => console.log(VERSION);
 
 const commandActions = {
   '--version': {
     action: showVersion,
-    description: 'печатает этот текст'
+    description: `печатает этот текст`
   },
   '--help': {
     action: showAllComands,
-    description: 'печатает версию приложения'
+    description: `печатает версию приложения`
   }
 };
 
@@ -35,6 +35,5 @@ if (isCommandAvailable) {
   console.error(`Неизвестная команда ${command}.Чтобы прочитать правила использования приложения, наберите "--help"`);
   process.exit(1);
 }
-
 
 
