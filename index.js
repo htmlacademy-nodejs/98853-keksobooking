@@ -1,6 +1,6 @@
 'use strict';
 
-const init = require(`./src/connect.js`);
+const init = require(`./src/init.js`);
 
 const command = process.argv[2];
 

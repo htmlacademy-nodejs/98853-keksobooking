@@ -1,11 +1,11 @@
 'use strict';
 
-const packageInfo = require(`../../package.json`);
+const {description} = require(`../../package.json`);
 
 module.exports = {
   name: `description`,
   description: `Показывает описание проекта`,
   execute() {
-    console.log(`${packageInfo.description}`);
+    console.log(`${description}`);
   }
 };
