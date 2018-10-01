@@ -1,7 +1,6 @@
 'use strict';
 
 const {version} = require(`../../package.json`);
-require(`colors`);
 
 module.exports = {
   name: `version`,

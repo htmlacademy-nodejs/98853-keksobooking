@@ -4,7 +4,6 @@ const version = require(`./version.js`);
 const author = require(`./author.js`);
 const description = require(`./description.js`);
 const license = require(`./license.js`);
-require(`colors`);
 
 const commands = [version, author, description, license];
 
