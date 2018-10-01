@@ -6,6 +6,6 @@ module.exports = {
   name: `author`,
   description: `Печатает автора приложения`,
   execute() {
-    console.log(`${author}`);
+    console.log(`${author.yellow}`);
   }
 };
