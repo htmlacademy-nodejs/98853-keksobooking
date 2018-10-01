@@ -1,7 +1,7 @@
 'use strict';
 
 const {version} = require(`../../package.json`);
-const [major,minor,patch] = version.split('.');
+const [major, minor, patch] = version.split(`.`);
 
 module.exports = {
   name: `version`,
