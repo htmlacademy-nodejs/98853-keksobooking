@@ -32,10 +32,6 @@ describe(`Generate object with offer's options`, () => {
     assert.equal(true, data.offer.type === `flat` || data.offer.type === `palace` || data.offer.type === `house` || data.offer.type === `bungalo`);
   });
 
-  it(`Features has a random length`, () => {
-    assert.notEqual(data.offer.features.length, generateEntity().offer.features.length);
-  });
-
   it(`Features has a non-repeating content`, () => {
     assert.notDeepEqual(data.offer.features, generateEntity().offer.features);
   });
