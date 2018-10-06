@@ -1,22 +1,27 @@
 'use strict';
 
-const {getRandomFromArr, getRandomFromRange, getRandomSample, mixArr} = require(`../utils.js`);
+const {
+  getRandomFromArr,
+  getRandomFromRange,
+  getRandomSample,
+  mixArr,
+  getRandomHash,
+  getDateInInterval
+} = require(`../utils.js`);
+
 const generatorOptions = require(`../data/generator-options.js`);
 
 const AVATAR_URL_BASE = `https://robohash.org`;
+const LENGTH_OF_URL_HASH = 7;
 
-const avatarUrl = `${AVATAR_URL_BASE}/${Math.random().toString(36).slice(-5)}`;
+
+const avatarUrl = `${AVATAR_URL_BASE}/${getRandomHash(LENGTH_OF_URL_HASH)}`;
 
 const location = {
   'x': getRandomFromRange(generatorOptions.MIN_X, generatorOptions.MAX_X),
   'y': getRandomFromRange(generatorOptions.MIN_Y, generatorOptions.MAX_Y)
 };
 
-const getDateInInterval = (length) => {
-  let today = Date.now();
-  const past = new Date(today).setDate(new Date(today).getDate() - length);
-  return getRandomFromRange(past, today);
-};
 
 const generateEntity = () => {
   return {

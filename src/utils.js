@@ -28,9 +28,19 @@ const mixArr = (array) => {
   return array;
 };
 
+const getDateInInterval = (countOfDays) => {
+  let today = Date.now();
+  const past = new Date(today).setDate(new Date(today).getDate() - countOfDays);
+  return getRandomFromRange(past, today);
+};
+
+const getRandomHash = (length) => Math.random().toString(36).slice(-length);
+
 module.exports = {
   getRandomFromArr,
   getRandomFromRange,
   getRandomSample,
-  mixArr
+  mixArr,
+  getDateInInterval,
+  getRandomHash
 };

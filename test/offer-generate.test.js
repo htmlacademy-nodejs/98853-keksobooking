@@ -4,7 +4,7 @@ const assert = require(`assert`);
 const {generateEntity} = require(`../src/generate/offer-generate.js`);
 const generatorOptions = require(`../src/data/generator-options.js`);
 
-const TIME_INTERVAL_MS = generatorOptions.TIME_INTERVAL_LENGTH * 24 * 60 * 60 * 1000;
+const ONE_WEEK_INTERVAL_MS = generatorOptions.TIME_INTERVAL_LENGTH * 24 * 60 * 60 * 1000;
 
 let data;
 
@@ -40,7 +40,7 @@ describe(`Generate object with offer's options`, () => {
   });
 
   it(`Type equal flat, palace, house or bungalo`, () => {
-    assert.equal(true, generatorOptions.TYPES.some((elem) => elem === data.offer.type));
+    assert.notEqual(-1, generatorOptions.TYPES.indexOf(data.offer.type));
   });
 
   it(`Features is a array of the strings`, () => {
@@ -67,7 +67,7 @@ describe(`Generate object with offer's options`, () => {
   });
 
   it(`The difference between today and the date of placement is not more than 7 days`, () => {
-    assert.equal(true, (Date.now() - generateEntity().date) < TIME_INTERVAL_MS);
+    assert.equal(true, (Date.now() - generateEntity().date) < ONE_WEEK_INTERVAL_MS);
   });
 
   it(`Rooms is a number`, () => {
@@ -93,7 +93,7 @@ describe(`Generate object with offer's options`, () => {
   });
 
   it(`Checkin equal 12:00, 13:00 or 14:00`, () => {
-    assert.equal(true, generatorOptions.CHECKINS.some((elem) => elem === data.offer.checkin));
+    assert.notEqual(-1, generatorOptions.CHECKINS.indexOf(data.offer.checkin));
   });
 
   it(`Checkout is a string`, () => {
@@ -101,7 +101,7 @@ describe(`Generate object with offer's options`, () => {
   });
 
   it(`Checkout equal 12:00, 13:00 or 14:00`, () => {
-    assert.equal(true, generatorOptions.CHECKOUTS.some((elem) => elem === data.offer.checkout));
+    assert.notEqual(-1, generatorOptions.CHECKOUTS.indexOf(data.offer.checkout));
   });
 
   it(`Location.x and location.y is a numbers`, () => {
