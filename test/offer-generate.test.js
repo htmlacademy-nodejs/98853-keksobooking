@@ -58,8 +58,9 @@ describe(`Generate object with offer's options`, () => {
     assert.equal(true, data.offer.photos.every((elem) => typeof elem === `string`));
   });
 
-  it(`Array of photos has a random sequence`, () => {
-    assert.notDeepStrictEqual(data.offer.photos, generateEntity().offer.photos);
+  it(`Array of photos has a non-repeating content`, () => {
+    assert.equal(data.offer.photos.length, new Set(data.offer.photos).size);
+
   });
 
   it(`Date is a number`, () => {
