@@ -1,17 +1,17 @@
 'use strict';
 
-const getRandomFromZero = (array) => Math.floor(Math.random() * array.length);
+const getRandomFromZero = (finiteNumber) => Math.floor(Math.random() * finiteNumber);
 
-const getRandomFromArr = (array) => array[getRandomFromZero(array)];
+const getRandomFromArr = (array) => array[getRandomFromZero(array.length)];
 
 const getRandomFromRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 const getRandomSample = (array) => {
   let result = [];
   let copy = array.slice();
-  const randomLength = getRandomFromZero(array);
+  const randomLength = getRandomFromZero(array.length);
   for (let i = 0; i < randomLength; i++) {
-    const randomIndex = getRandomFromZero(copy);
+    const randomIndex = getRandomFromZero(copy.length);
     result.push(copy[randomIndex]);
     copy.splice(randomIndex, 1);
   }
@@ -19,13 +19,14 @@ const getRandomSample = (array) => {
 };
 
 const mixArr = (array) => {
-  for (let i = array.length - 1; i > 0; i--) {
-    let j = Math.floor(Math.random() * (i + 1));
-    let temp = array[i];
-    array[i] = array[j];
-    array[j] = temp;
+  const copy = array.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    let j = getRandomFromZero(i + 1);
+    let temp = copy[i];
+    copy[i] = copy[j];
+    copy[j] = temp;
   }
-  return array;
+  return copy;
 };
 
 const getDateInInterval = (countOfDays) => {

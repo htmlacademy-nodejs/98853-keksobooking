@@ -49,6 +49,8 @@ const generateEntity = () => {
   };
 };
 
+console.log(generateEntity());
+
 module.exports = {
   generateEntity
 };

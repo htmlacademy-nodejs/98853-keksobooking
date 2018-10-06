@@ -5,12 +5,13 @@ const {generateEntity} = require(`../src/generate/offer-generate.js`);
 const generatorOptions = require(`../src/data/generator-options.js`);
 
 const ONE_WEEK_INTERVAL_MS = generatorOptions.TIME_INTERVAL_LENGTH * 24 * 60 * 60 * 1000;
+const REG_EXP_FOR_URL = /^(ftp|http|https):\/\/[^ "]+$/;
 
 let data;
 
 describe(`Generate object with offer's options`, () => {
 
-  beforeEach(() => {
+  before(() => {
     data = generateEntity();
   });
 
@@ -23,7 +24,7 @@ describe(`Generate object with offer's options`, () => {
   });
 
   it(`Avatar's url is a URL`, () => {
-    assert.equal(true, /^(ftp|http|https):\/\/[^ "]+$/.test(data.author.avatar));
+    assert.equal(true, REG_EXP_FOR_URL.test(data.author.avatar));
   });
 
   it(`Price is a number`, () => {
@@ -58,7 +59,7 @@ describe(`Generate object with offer's options`, () => {
   });
 
   it(`Array of photos has a random sequence`, () => {
-    assert.notEqual(JSON.stringify(data.offer.photos), JSON.stringify(generateEntity().offer.photos));
+    assert.notDeepStrictEqual(data.offer.photos, generateEntity().offer.photos);
   });
 
   it(`Date is a number`, () => {
