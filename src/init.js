@@ -7,7 +7,7 @@ const version = require(`./commands/version.js`);
 const author = require(`./commands/author.js`);
 const description = require(`./commands/description.js`);
 const license = require(`./commands/license.js`);
-const {handleGenerateQuestion} = require(`./generate/generate.js`);
+const {execute} = require(`./generate/generate.js`);
 
 
 const commands = [help, version, author, description, license];
@@ -24,7 +24,7 @@ const init = (command) => {
   } else {
     console.log(`Привет пользователь! Эта программа будет запускать сервер ${packageInfo.name}.
 	  	\nАвтор: ${packageInfo.author}.`);
-    handleGenerateQuestion();
+    execute();
   }
 };
 
