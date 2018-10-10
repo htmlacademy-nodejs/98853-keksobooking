@@ -23,30 +23,38 @@ const getRandomLocation = () => ({
 });
 
 
-const generateEntity = () => {
-  return {
-    author: {
-      avatar: getAvatarUrl()
-    },
-    offer: {
-      title: getRandomFromArr(generatorOptions.TITLES),
-      address: ``,
-      price: getRandomFromRange(generatorOptions.MIN_PRICE, generatorOptions.MAX_PRICE),
-      type: getRandomFromArr(generatorOptions.TYPES),
-      rooms: getRandomFromRange(generatorOptions.MIN_ROOMS_COUNT, generatorOptions.MAX_ROOMS_COUNT),
-      guests: getRandomFromRange(generatorOptions.MIN_ROOMS_COUNT, generatorOptions.MAX_ROOMS_COUNT),
-      checkin: getRandomFromArr(generatorOptions.CHECKINS),
-      checkout: getRandomFromArr(generatorOptions.CHECKOUTS),
-      features: getRandomSample(generatorOptions.FEATURES),
-      description: ``,
-      photos: mixArr(generatorOptions.PHOTOS)
-    },
-    location: {
-      x: getRandomLocation().x,
-      y: getRandomLocation().y
-    },
-    date: getDateInInterval(generatorOptions.TIME_INTERVAL_LENGTH)
-  };
+const generateEntity = (count) => {
+  const result = [];
+  return new Promise((resolve) => {
+    for (let i = 0; i < count; i++) {
+      const offer = {
+        author: {
+          avatar: getAvatarUrl()
+        },
+        offer: {
+          title: getRandomFromArr(generatorOptions.TITLES),
+          address: ``,
+          price: getRandomFromRange(generatorOptions.MIN_PRICE, generatorOptions.MAX_PRICE),
+          type: getRandomFromArr(generatorOptions.TYPES),
+          rooms: getRandomFromRange(generatorOptions.MIN_ROOMS_COUNT, generatorOptions.MAX_ROOMS_COUNT),
+          guests: getRandomFromRange(generatorOptions.MIN_ROOMS_COUNT, generatorOptions.MAX_ROOMS_COUNT),
+          checkin: getRandomFromArr(generatorOptions.CHECKINS),
+          checkout: getRandomFromArr(generatorOptions.CHECKOUTS),
+          features: getRandomSample(generatorOptions.FEATURES),
+          description: ``,
+          photos: mixArr(generatorOptions.PHOTOS)
+        },
+        location: {
+          x: getRandomLocation().x,
+          y: getRandomLocation().y
+        },
+        date: getDateInInterval(generatorOptions.TIME_INTERVAL_LENGTH)
+      };
+      result.push(offer);
+    }
+    resolve(result);
+  });
+
 };
 
 module.exports = {
