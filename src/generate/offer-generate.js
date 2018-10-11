@@ -49,13 +49,12 @@ const generateEntity = () => ({
 
 const getOffers = (count) => {
   const result = [];
-  return new Promise((resolve) => {
-    for (let i = 0; i < count; i++) {
-      const offer = generateEntity();
-      result.push(offer);
-    }
-    resolve(result);
-  });
+  for (let i = 0; i < count; i++) {
+    const offer = generateEntity();
+    result.push(offer);
+  }
+  return result;
+
 };
 
 module.exports = {

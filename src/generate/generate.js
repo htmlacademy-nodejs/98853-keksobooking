@@ -7,6 +7,8 @@ const {getOffers} = require(`./offer-generate.js`);
 const {isInteger} = require(`../utils.js`);
 const MAX_OF_ELEMENTS_GENERATED = 10;
 const MIN_OF_ELEMENTS_GENERATED = 1;
+const positiveAnswer = `да`;
+const negativeAnswer = `нет`;
 
 const fileWriteOptions = {encoding: `utf-8`, mode: 0o644};
 
@@ -17,39 +19,36 @@ const rl = readline.createInterface({
 
 const askUser = (question) => {
   return new Promise((resolve) => {
-    rl.question(question, resolve);
+    rl.question(`${question} \n`, resolve);
   });
 };
 
 
 const confirmGeneration = async () => {
   const question = `Вы хотите сгенерировать данные? (да/нет)`;
-  let answer = await askUser(`${question} \n`);
-  while (answer !== `да` && answer !== `нет`) {
-    answer = await askUser(`${question} \n`);
+  let answer = await askUser(question);
+  while (answer !== positiveAnswer && answer !== negativeAnswer) {
+    answer = await askUser(question);
   }
-  return answer === `да` ? true : rl.close();
+  return answer === positiveAnswer;
 };
 
 const getItemsCount = async () => {
   const question = `Сколько объектов Вы хотите сгенерировать? \n Мин: ${MIN_OF_ELEMENTS_GENERATED}, Макс: ${MAX_OF_ELEMENTS_GENERATED}`;
-  let answer = await askUser(`${question} \n`);
+  let answer = await askUser(question);
   while (answer < MIN_OF_ELEMENTS_GENERATED || answer > MAX_OF_ELEMENTS_GENERATED || !isInteger(+answer)) {
-    answer = await askUser(`${question} \n`);
+    answer = await askUser(question);
   }
   return answer;
 };
 
-
 const getFilePath = async () => {
   const question = `Куда Вы хотите сохранить данные?`;
-  let answer = await askUser(`${question} \n`);
+  let answer = await askUser(question);
   while (!answer) {
-    answer = await askUser(`${question} \n`);
+    answer = await askUser(question);
   }
   return `${__dirname}/${answer}`;
-
-
 };
 
 const checkExistance = (path) => {
@@ -62,17 +61,13 @@ const checkExistance = (path) => {
 
 const confirmRewrite = async () => {
   const question = `Такой файл существует, хотите перезаписать его? (да/нет)`;
-  let answer = await askUser(`${question} \n`);
-  while (answer !== `да` && answer !== `нет`) {
-    answer = await askUser(`${question} \n`);
+  let answer = await askUser(question);
+  while (answer !== positiveAnswer && answer !== negativeAnswer) {
+    answer = await askUser(question);
   }
-  return answer === `да` ? true : rl.close();
+  return answer === positiveAnswer;
 };
 
-const removeFile = async (path) => {
-  const unlink = await promisify(fs.unlink);
-  unlink(path);
-};
 
 const saveItemsToFile = async (filePath, itemCount) => {
   const data = await getOffers(itemCount);
@@ -91,8 +86,11 @@ const executeGeneration = async () => {
       const isFileAlreadyExists = await checkExistance(filePath);
 
       if (isFileAlreadyExists) {
-        await confirmRewrite();
-        await removeFile(filePath);
+        const isReadyToRewrite = await confirmRewrite();
+        if (!isReadyToRewrite) {
+          console.log(`Данные не были сохранены!`);
+          process.exit(1);
+        }
       }
 
       await saveItemsToFile(filePath, itemsCount);
@@ -102,6 +100,7 @@ const executeGeneration = async () => {
     console.error(error);
     process.exit(1);
   }
+  rl.close();
 };
 
 module.exports = {
