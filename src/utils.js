@@ -37,11 +37,14 @@ const getDateInInterval = (countOfDays) => {
 
 const getRandomHash = (length) => Math.random().toString(36).slice(-length);
 
+const isInteger = (num) => (num ^ 0) === num;
+
 module.exports = {
   getRandomFromArr,
   getRandomFromRange,
   getRandomSample,
   mixArr,
   getDateInInterval,
-  getRandomHash
+  getRandomHash,
+  isInteger
 };
