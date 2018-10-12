@@ -70,10 +70,28 @@ const confirmRewrite = async () => {
 
 
 const saveItemsToFile = async (filePath, itemCount) => {
-  const data = await getOffers(itemCount);
+  const data = getOffers(itemCount);
   const writeFile = promisify(fs.writeFile);
+
+  fs.open(filePath, `wx`, async(err) => {
+    if (err) {
+      if (err.code === `EEXIST`) {
+        console.log(`Файл существует`);
+        const isReadyToWrite = await confirmRewrite();
+        if (!isReadyToWrite) {
+          console.log(`Пользователь запретил перезапись!`);
+          return;
+        }
+      }
+
+      throw err;
+    }
+  })
+
   await writeFile(filePath, JSON.stringify(data), fileWriteOptions);
   console.log(`Данные сохранены в ${filePath}`);
+
+
 };
 
 
@@ -83,18 +101,7 @@ const executeGeneration = async () => {
     if (isReadyToGenerate) {
       const itemsCount = await getItemsCount();
       const filePath = await getFilePath();
-      const isFileAlreadyExists = await checkExistance(filePath);
-
-      if (isFileAlreadyExists) {
-        const isReadyToRewrite = await confirmRewrite();
-        if (!isReadyToRewrite) {
-          console.log(`Данные не были сохранены!`);
-          process.exit(1);
-        }
-      }
-
       await saveItemsToFile(filePath, itemsCount);
-      rl.close();
     }
   } catch (error) {
     console.error(error);
