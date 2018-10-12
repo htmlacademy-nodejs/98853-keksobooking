@@ -9,8 +9,10 @@ const MAX_OF_ELEMENTS_GENERATED = 10;
 const MIN_OF_ELEMENTS_GENERATED = 1;
 const positiveAnswer = `да`;
 const negativeAnswer = `нет`;
-
 const fileWriteOptions = {encoding: `utf-8`, mode: 0o644};
+
+const writeFile = promisify(fs.writeFile);
+const open = promisify(fs.open);
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -22,7 +24,6 @@ const askUser = (question) => {
     rl.question(`${question} \n`, resolve);
   });
 };
-
 
 const confirmGeneration = async () => {
   const question = `Вы хотите сгенерировать данные? (да/нет)`;
@@ -51,13 +52,6 @@ const getFilePath = async () => {
   return `${__dirname}/${answer}`;
 };
 
-const checkExistance = (path) => {
-  return new Promise((resolve) => {
-    fs.access(path, fs.F_OK, (error) => {
-      resolve(!error);
-    });
-  });
-};
 
 const confirmRewrite = async () => {
   const question = `Такой файл существует, хотите перезаписать его? (да/нет)`;
@@ -71,27 +65,19 @@ const confirmRewrite = async () => {
 
 const saveItemsToFile = async (filePath, itemCount) => {
   const data = getOffers(itemCount);
-  const writeFile = promisify(fs.writeFile);
-
-  fs.open(filePath, `wx`, async(err) => {
-    if (err) {
-      if (err.code === `EEXIST`) {
-        console.log(`Файл существует`);
-        const isReadyToWrite = await confirmRewrite();
-        if (!isReadyToWrite) {
-          console.log(`Пользователь запретил перезапись!`);
-          return;
-        }
+  try {
+    await open(filePath, `wx`);
+  } catch (error) {
+    if (error.code === `EEXIST`) {
+      const isReadyToWrite = await confirmRewrite();
+      if (!isReadyToWrite) {
+        console.log(`Пользователь запретил перезапись!`);
+        return;
       }
-
-      throw err;
     }
-  })
-
+  }
   await writeFile(filePath, JSON.stringify(data), fileWriteOptions);
   console.log(`Данные сохранены в ${filePath}`);
-
-
 };
 
 
