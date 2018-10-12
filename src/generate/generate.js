@@ -19,19 +19,31 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-const askUser = (question) => {
-  return new Promise((resolve) => {
+
+const askUser = async (question, f) => {
+  const answer = new Promise((resolve) => {
     rl.question(`${question} \n`, resolve);
   });
+
+  answer.then((answer) => {
+    if (f(answer)) {
+      console.log(`неверный ответ`);
+    } else {
+      console.log(`ответ верный`);
+      return answer;
+    }
+  }).then((answer) => answer);
+
+
 };
 
 const confirmGeneration = async () => {
   const question = `Вы хотите сгенерировать данные? (да/нет)`;
-  let answer = await askUser(question);
-  while (answer !== positiveAnswer && answer !== negativeAnswer) {
-    answer = await askUser(question);
+  const getAnswer = (answer) => {
+    return answer !== positiveAnswer && answer !== negativeAnswer;
   }
-  return answer === positiveAnswer;
+  await askUser(question, getAnswer);
+  return true;
 };
 
 const getItemsCount = async () => {
