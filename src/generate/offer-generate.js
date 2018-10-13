@@ -15,40 +15,49 @@ const AVATAR_URL_BASE = `https://robohash.org`;
 const LENGTH_OF_URL_HASH = 7;
 
 
-const avatarUrl = `${AVATAR_URL_BASE}/${getRandomHash(LENGTH_OF_URL_HASH)}`;
+const getAvatarUrl = () => `${AVATAR_URL_BASE}/${getRandomHash(LENGTH_OF_URL_HASH)}`;
 
-const location = {
+const getRandomLocation = () => ({
   'x': getRandomFromRange(generatorOptions.MIN_X, generatorOptions.MAX_X),
   'y': getRandomFromRange(generatorOptions.MIN_Y, generatorOptions.MAX_Y)
-};
+});
 
 
-const generateEntity = () => {
-  return {
-    author: {
-      avatar: avatarUrl
-    },
-    offer: {
-      title: getRandomFromArr(generatorOptions.TITLES),
-      address: `${location.x}, ${location.y}`,
-      price: getRandomFromRange(generatorOptions.MIN_PRICE, generatorOptions.MAX_PRICE),
-      type: getRandomFromArr(generatorOptions.TYPES),
-      rooms: getRandomFromRange(generatorOptions.MIN_ROOMS_COUNT, generatorOptions.MAX_ROOMS_COUNT),
-      guests: getRandomFromRange(generatorOptions.MIN_ROOMS_COUNT, generatorOptions.MAX_ROOMS_COUNT),
-      checkin: getRandomFromArr(generatorOptions.CHECKINS),
-      checkout: getRandomFromArr(generatorOptions.CHECKOUTS),
-      features: getRandomSample(generatorOptions.FEATURES),
-      description: ``,
-      photos: mixArr(generatorOptions.PHOTOS)
-    },
-    location: {
-      x: location.x,
-      y: location.y
-    },
-    date: getDateInInterval(generatorOptions.TIME_INTERVAL_LENGTH)
-  };
+const generateEntity = () => ({
+  author: {
+    avatar: getAvatarUrl()
+  },
+  offer: {
+    title: getRandomFromArr(generatorOptions.TITLES),
+    address: ``,
+    price: getRandomFromRange(generatorOptions.MIN_PRICE, generatorOptions.MAX_PRICE),
+    type: getRandomFromArr(generatorOptions.TYPES),
+    rooms: getRandomFromRange(generatorOptions.MIN_ROOMS_COUNT, generatorOptions.MAX_ROOMS_COUNT),
+    guests: getRandomFromRange(generatorOptions.MIN_ROOMS_COUNT, generatorOptions.MAX_ROOMS_COUNT),
+    checkin: getRandomFromArr(generatorOptions.CHECKINS),
+    checkout: getRandomFromArr(generatorOptions.CHECKOUTS),
+    features: getRandomSample(generatorOptions.FEATURES),
+    description: ``,
+    photos: mixArr(generatorOptions.PHOTOS)
+  },
+  location: {
+    x: getRandomLocation().x,
+    y: getRandomLocation().y
+  },
+  date: getDateInInterval(generatorOptions.TIME_INTERVAL_LENGTH)
+});
+
+const getOffers = (count) => {
+  const result = [];
+  for (let i = 0; i < count; i++) {
+    const offer = generateEntity();
+    result.push(offer);
+  }
+  return result;
+
 };
 
 module.exports = {
-  generateEntity
+  generateEntity,
+  getOffers
 };
