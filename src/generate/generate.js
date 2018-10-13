@@ -19,7 +19,7 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-const askUser = async (question, f) => {
+const askUser = async (question, validation) => {
   let currentQuestion;
   let answer;
 
@@ -29,7 +29,7 @@ const askUser = async (question, f) => {
     });
     answer = await currentQuestion;
   };
-  while (f(answer)) {
+  while (validation(answer)) {
     await askQuestionAndGetAnswer();
   }
   return currentQuestion;
