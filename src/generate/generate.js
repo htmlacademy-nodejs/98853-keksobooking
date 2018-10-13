@@ -12,7 +12,7 @@ const VALIDATION_FUNCTIONS = {
     return answer === POSITIVE_ANSWER || answer === NEGATIVE_ANSWER;
   },
   isItIntegerInRange: (answer) => {
-    return answer > MIN_OF_ELEMENTS_GENERATED && answer < MAX_OF_ELEMENTS_GENERATED && isInteger(Number(answer));
+    return answer >= MIN_OF_ELEMENTS_GENERATED && answer <= MAX_OF_ELEMENTS_GENERATED && isInteger(Number(answer));
   },
   isPathNotEmpty: (answer) => {
     return answer;
