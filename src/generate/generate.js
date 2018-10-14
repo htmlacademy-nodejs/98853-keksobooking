@@ -8,13 +8,13 @@ const {isInteger} = require(`../utils.js`);
 const MAX_OF_ELEMENTS_GENERATED = 10;
 const MIN_OF_ELEMENTS_GENERATED = 1;
 const VALIDATION_FUNCTIONS = {
-  isItYesOrNo: (answer) => {
+  isItYesOrNo(answer) {
     return answer === POSITIVE_ANSWER || answer === NEGATIVE_ANSWER;
   },
-  isItIntegerInRange: (answer) => {
+  isItIntegerInRange(answer) {
     return answer >= MIN_OF_ELEMENTS_GENERATED && answer <= MAX_OF_ELEMENTS_GENERATED && isInteger(Number(answer));
   },
-  isPathNotEmpty: (answer) => {
+  isPathNotEmpty(answer) {
     return answer;
   }
 };
@@ -49,32 +49,32 @@ const askUser = async (question, validationFn) => {
 
 const confirmGeneration = async () => {
   const question = `Вы хотите сгенерировать данные? (да/нет)`;
-  const answer = await askUser(question, VALIDATION_FUNCTIONS[`isItYesOrNo`]);
+  const answer = await askUser(question, VALIDATION_FUNCTIONS.isItYesOrNo);
   return answer === POSITIVE_ANSWER;
 };
 
 const getItemsCount = async () => {
   const question = `Сколько объектов Вы хотите сгенерировать? \n Мин: ${MIN_OF_ELEMENTS_GENERATED}, Макс: ${MAX_OF_ELEMENTS_GENERATED}`;
-  const answer = await askUser(question, VALIDATION_FUNCTIONS[`isItIntegerInRange`]);
+  const answer = await askUser(question, VALIDATION_FUNCTIONS.isItIntegerInRange);
   return answer;
 };
 
 const getFilePath = async () => {
   const question = `Куда Вы хотите сохранить данные?`;
-  const answer = await askUser(question, VALIDATION_FUNCTIONS[`isPathNotEmpty`]);
+  const answer = await askUser(question, VALIDATION_FUNCTIONS.isPathNotEmpty);
   return `${__dirname}/${answer}`;
 };
 
 const confirmRewrite = async () => {
   const question = `Такой файл существует, хотите перезаписать его? (да/нет)`;
-  const answer = await askUser(question, VALIDATION_FUNCTIONS[`isItYesOrNo`]);
+  const answer = await askUser(question, VALIDATION_FUNCTIONS.isItYesOrNo);
   return answer === POSITIVE_ANSWER;
 };
 
 const saveItemsToFile = async (filePath, itemCount) => {
   const data = getOffers(itemCount);
   try {
-    await open(filePath, `wx`);
+    await open(filePath, `w`);
   } catch (error) {
     if (error.code === `EEXIST`) {
       const isReadyToWrite = await confirmRewrite();
