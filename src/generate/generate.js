@@ -8,13 +8,13 @@ const {isInteger} = require(`../utils.js`);
 const MAX_OF_ELEMENTS_GENERATED = 10;
 const MIN_OF_ELEMENTS_GENERATED = 1;
 const VALIDATION_FUNCTIONS = {
-  isItYesOrNo: (answer) => {
+  isItYesOrNo(answer) {
     return answer === POSITIVE_ANSWER || answer === NEGATIVE_ANSWER;
   },
-  isItIntegerInRange: (answer) => {
+  isItIntegerInRange(answer) {
     return answer >= MIN_OF_ELEMENTS_GENERATED && answer <= MAX_OF_ELEMENTS_GENERATED && isInteger(Number(answer));
   },
-  isPathNotEmpty: (answer) => {
+  isPathNotEmpty(answer) {
     return answer;
   }
 };

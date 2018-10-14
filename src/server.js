@@ -4,7 +4,9 @@ const http = require(`http`);
 const {promisify} = require(`util`);
 const {parse} = require(`url`);
 const {join, extname} = require(`path`);
-const readFile = promisify(require(`fs`).readFile);
+const {readFile} = require(`fs`);
+
+const fsReadFile = promisify(readFile);
 
 const DEFAULT_PORT = 3000;
 const HOSTNAME = `127.0.0.1`;
@@ -30,7 +32,7 @@ const DIR_NAME_WITH_STATIC = `static`;
 const basePath = join(__dirname, `..`, DIR_NAME_WITH_STATIC);
 
 const sendFile = async (filePath, res) => {
-  const data = await readFile(filePath);
+  const data = await fsReadFile(filePath);
   const ext = extname(filePath).slice(1);
   const contentType = ContentTypes[ext.toUpperCase()];
   res.writeHead(StatusCodes.OK, {
