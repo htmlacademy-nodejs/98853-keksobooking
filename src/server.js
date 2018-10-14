@@ -11,7 +11,7 @@ const fsReadFile = promisify(readFile);
 const DEFAULT_PORT = 3000;
 const HOSTNAME = `127.0.0.1`;
 
-const StatusCodes = {
+const StatusCode = {
   OK: `200`,
   NOT_FOUND: `404`,
   SERVER_ERROR: `500`
@@ -35,7 +35,7 @@ const sendFile = async (filePath, res) => {
   const data = await fsReadFile(filePath);
   const ext = extname(filePath).slice(1);
   const contentType = ContentTypes[ext.toUpperCase()];
-  res.writeHead(StatusCodes.OK, {
+  res.writeHead(StatusCode.OK, {
     'content-type': contentType
   });
   res.end(data);
@@ -43,11 +43,9 @@ const sendFile = async (filePath, res) => {
 
 const server = http.createServer(async (req, res) => {
 
-  let filePath;
-
   const parsedUrl = parse(req.url).pathname;
 
-  filePath = parsedUrl === `/` ? `index.html` : parsedUrl;
+  let filePath = parsedUrl === `/` ? `index.html` : parsedUrl;
 
   const fullPath = join(basePath, filePath);
 
@@ -55,16 +53,16 @@ const server = http.createServer(async (req, res) => {
     await sendFile(fullPath, res);
   } catch (error) {
     if (error.code === `ENOENT`) {
-      res.writeHead(StatusCodes.NOT_FOUND, {
+      res.writeHead(StatusCode.NOT_FOUND, {
         'content-type': `text/plain; charset=UTF-8`
       });
       res.end(NOT_FOUND_MESSAGE);
       return;
     }
-    res.writeHead(StatusCodes.SERVER_ERROR, error.message, {
+    res.writeHead(StatusCode.SERVER_ERROR, error.message, {
       'content-type': `text-plain`
     });
-    console.log(error.message);
+    console.error(error.message);
     res.end(error.message);
   }
 });
