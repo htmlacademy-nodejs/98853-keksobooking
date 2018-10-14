@@ -1,49 +1,41 @@
 'use strict';
 
 const http = require(`http`);
-const url = require(`url`);
-const fs = require(`fs`);
-const path = require(`path`);
 const {promisify} = require(`util`);
-let mime = require(`mime-types`);
-
-const read = promisify(fs.readFile);
-const open = promisify(fs.open);
+const {parse} = require(`url`);
+const {join, extname} = require(`path`);
+const readFile = promisify(require(`fs`).readFile);
 
 const DEFAULT_PORT = 3000;
 const HOSTNAME = `127.0.0.1`;
 
-const STATUS_CODES = {
+const StatusCodes = {
   OK: `200`,
-  notFound: `404`
+  NOT_FOUND: `404`,
+  SERVER_ERROR: `500`
+};
+
+const ContentTypes = {
+  CSS: `text/css`,
+  HTML: `text/html; charset=UTF-8`,
+  JPG: `image/jpeg`,
+  PNG: `image/png`,
+  ICO: `image/x-icon`
 };
 
 const NOT_FOUND_MESSAGE = `Такой страницы не существует!`;
 
 const DIR_NAME_WITH_STATIC = `static`;
 
-const basePath = `${path.resolve(__dirname, `..`)}/${DIR_NAME_WITH_STATIC}`;
+const basePath = join(__dirname, `..`, DIR_NAME_WITH_STATIC);
 
-const readFile = async (filePath, res) => {
-  try {
-    await open(filePath, `r`);
-  } catch (error) {
-    if (error.code === `ENOENT`) {
-      res.writeHead(STATUS_CODES.notFound, error.message, {
-        'content-type': `text/plain; charset=UTF-8`
-      });
-      res.end(NOT_FOUND_MESSAGE);
-      return;
-    }
-  }
-
-  const data = await read(filePath);
-  const contentType = mime.contentType(path.extname(filePath));
-
-  res.writeHead(STATUS_CODES.OK, {
+const sendFile = async (filePath, res) => {
+  const data = await readFile(filePath);
+  const ext = extname(filePath).slice(1);
+  const contentType = ContentTypes[ext.toUpperCase()];
+  res.writeHead(StatusCodes.OK, {
     'content-type': contentType
   });
-
   res.end(data);
 };
 
@@ -51,24 +43,26 @@ const server = http.createServer(async (req, res) => {
 
   let filePath;
 
-  const parsedUrl = url.parse(req.url).pathname;
+  const parsedUrl = parse(req.url).pathname;
 
-  // parsedUrl === `/` ? filePath = `index.html` : filePath = parsedUrl;  ESLint ругается "Expected an assignment or function call and instead saw an expression"
+  filePath = parsedUrl === `/` ? `index.html` : parsedUrl;
 
-  if (parsedUrl === `/`) {
-    filePath = `index.html`;
-  } else {
-    filePath = parsedUrl;
-  }
-
-  const fullPath = `${basePath}/${filePath}`;
+  const fullPath = join(basePath, filePath);
 
   try {
-    await readFile(fullPath, res);
+    await sendFile(fullPath, res);
   } catch (error) {
-    res.writeHead(500, error.message, {
+    if (error.code === `ENOENT`) {
+      res.writeHead(StatusCodes.NOT_FOUND, {
+        'content-type': `text/plain; charset=UTF-8`
+      });
+      res.end(NOT_FOUND_MESSAGE);
+      return;
+    }
+    res.writeHead(StatusCodes.SERVER_ERROR, error.message, {
       'content-type': `text-plain`
     });
+    console.log(error.message);
     res.end(error.message);
   }
 });
