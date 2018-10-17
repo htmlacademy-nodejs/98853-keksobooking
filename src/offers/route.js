@@ -8,7 +8,7 @@ const DEFAULT_LIMIT_VALUE = 20;
 
 // eslint-disable-next-line new-cap
 const offersRouter = Router();
-const offers = getOffers(50);
+const offers = getOffers(DEFAULT_LIMIT_VALUE);
 
 const handleSkip = (arrayOfOffers, skip = DEFAULT_SKIP_VALUE) => arrayOfOffers.slice(skip);
 

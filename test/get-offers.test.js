@@ -21,6 +21,20 @@ describe(`GET /api/offers`, () => {
         assert.equal(offers.length, 20);
       });
   });
+
+  it(`get all offers?skip=2&limit=10`, async () => {
+
+    await request(app).
+      get(`/api/offers?skip=2&limit=10`).
+      set(`Accept`, `application/json`).
+      expect(200).
+      expect(`Content-Type`, /json/).
+      then((res) => {
+        const offers = res.body;
+        assert.equal(offers.length, 10);
+      });
+  });
+
 });
 
 describe(`GET /api/offers/:date`, () => {
