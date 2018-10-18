@@ -7,7 +7,7 @@ class NotFoundError extends Error {
   }
 }
 
-class IllegalArgumentError extends Error {
+class BadRequest extends Error {
   constructor(message) {
     super(message);
     this.code = 400;
@@ -16,5 +16,5 @@ class IllegalArgumentError extends Error {
 
 module.exports = {
   NotFoundError,
-  IllegalArgumentError
+  BadRequest
 };

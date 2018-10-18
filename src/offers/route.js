@@ -2,44 +2,54 @@
 
 const {Router} = require(`express`);
 const {getOffers} = require(`../generate/offer-generate.js`);
-const {NotFoundError, IllegalArgumentError} = require(`../errors.js`);
+const {NotFoundError, BadRequest} = require(`../errors.js`);
+const {isInteger} = require(`../utils.js`);
 const DEFAULT_SKIP_VALUE = 0;
 const DEFAULT_LIMIT_VALUE = 20;
 
 // eslint-disable-next-line new-cap
 const offersRouter = Router();
-const offers = getOffers(DEFAULT_LIMIT_VALUE);
+const offers = getOffers(100);
 
 const handleSkip = (arrayOfOffers, skip = DEFAULT_SKIP_VALUE) => arrayOfOffers.slice(skip);
 
 const handleLimit = (arrayOfOffers, limit = DEFAULT_LIMIT_VALUE) => arrayOfOffers.slice(0, limit);
 
-offersRouter.get(``, (req, res) => {
+const skipValidationFn = (req, res, next) => {
+  const skip = req.query.skip || DEFAULT_SKIP_VALUE;
+  if (!isInteger(Number(skip)) || skip > offers.length || skip < 0) {
+    throw new BadRequest(`Неверное значение параметра "skip"!`);
+  }
+  next();
+};
+
+const limitValidationFn = (req, res, next) => {
+  const limit = req.query.limit || DEFAULT_LIMIT_VALUE;
+  if (!isInteger(Number(limit)) || limit < 0) {
+    throw new BadRequest(`Неверное значение параметра "limit"!`);
+  }
+  next();
+};
+
+const filtrationOffers = (req, res) => {
   const {skip, limit} = req.query;
-  const copy = offers.slice();
-  const filteredOffers = handleLimit(handleSkip(copy, skip), limit);
-  if (skip < 0 || skip > offers.length || limit <= 0 || !filteredOffers.length) {
-    throw new IllegalArgumentError(`Неверное значение параметра!`);
+  const filteredOffers = handleLimit(handleSkip(offers, skip), limit);
+  if (!filteredOffers.length) {
+    throw new BadRequest(`Неверное значение параметра "skip" или "limit"!`);
   }
   res.send(filteredOffers);
-});
+};
+
+offersRouter.get(``, [skipValidationFn, limitValidationFn, filtrationOffers]);
 
 offersRouter.get(`/:date`, (req, res) => {
   const offerDate = req.params.date;
-  const matches = offers.filter((it) => it.date === Number(offerDate));
-  if (!matches.length) {
+  const match = offers.find((it) => it.date === Number(offerDate));
+  if (!match) {
     throw new NotFoundError(`Объявлений с датой "${offerDate}" не нашлось!`);
   }
-  res.send(matches);
+  res.send(match);
 });
-
-
-const ERROR_HANDLER = (err, req, res, _next) => {
-  console.error(err);
-  res.status(err.code || 500).send(err.message);
-};
-
-offersRouter.use(ERROR_HANDLER);
 
 
 module.exports = {

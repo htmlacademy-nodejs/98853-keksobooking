@@ -23,7 +23,6 @@ describe(`GET /api/offers`, () => {
   });
 
   it(`get all offers?skip=2&limit=10`, async () => {
-
     await request(app).
       get(`/api/offers?skip=2&limit=10`).
       set(`Accept`, `application/json`).
@@ -32,6 +31,19 @@ describe(`GET /api/offers`, () => {
       then((res) => {
         const offers = res.body;
         assert.equal(offers.length, 10);
+      });
+  });
+
+  it(`get all offers?skip=bla&limit=10`, async () => {
+    await request(app).
+      get(`/api/offers?skip=bla&limit=10`).
+      set(`Accept`, `application/json`).
+      expect(400).
+      expect(`Content-Type`, /json/).
+      then((res) => {
+        const message = res.body;
+        console.log(`${message} dsfsdfsdfsdfsdf`);
+        assert.equal(message, `Неверное значение параметра "skip"!`);
       });
   });
 
@@ -46,15 +58,16 @@ describe(`GET /api/offers/:date`, () => {
       expect(`Content-Type`, /json/).
       then((res) => {
         const offer = res.body;
-        assert.strictEqual(offer[0].date, 1539441679957);
+        assert.strictEqual(offer.date, 1539441679957);
       });
   });
+
   it(`get offer with date 345638645873`, async () => {
     await request(app).
       get(`/api/offers/345638645873`).
       set(`Accept`, `application/json`).
       expect(404).
       expect(`Объявлений с датой "345638645873" не нашлось!`).
-      expect(`Content-Type`, /html/);
+      expect(`Content-Type`, /json/);
   });
 });
