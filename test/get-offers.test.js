@@ -26,8 +26,10 @@ describe(`GET /api/offers`, () => {
       get(`/api/oneone`).
       set(`Accept`, `application/json`).
       expect(404).
-      expect(`Такой страницы не существует!`).
-      expect(`Content-Type`, /html/);
+      expect(`Content-Type`, /html/).
+      end(function (err, res) {
+        assert.equal(res.text, err.message);
+      });
   });
 
   it(`get offers?skip=2&limit=10`, async () => {
@@ -48,7 +50,9 @@ describe(`GET /api/offers`, () => {
       set(`Accept`, `text/html`).
       expect(400).
       expect(`Content-Type`, `text/html; charset=utf-8`).
-      expect(`Неверное значение параметра "skip"!`);
+      end(function (err, res) {
+        assert.equal(res.text, err.message);
+      });
   });
 
   it(`if enter invalid parameter "limit" server will return the correct error code`, async () => {
@@ -57,7 +61,9 @@ describe(`GET /api/offers`, () => {
       set(`Accept`, `text/html`).
       expect(400).
       expect(`Content-Type`, `text/html; charset=utf-8`).
-      expect(`Неверное значение параметра "limit"!`);
+      end(function (err, res) {
+        assert.equal(res.text, err.message);
+      });
   });
 
   it(`if enter only one parameter "skip" the server will use default value of parameter "limit"`, async () => {
@@ -104,7 +110,9 @@ describe(`GET /api/offers/:date`, () => {
       get(`/api/offers/345638645873`).
       set(`Accept`, `text/html`).
       expect(404).
-      expect(`Объявлений с датой "345638645873" не нашлось!`).
-      expect(`Content-Type`, `text/html; charset=utf-8`);
+      expect(`Content-Type`, `text/html; charset=utf-8`).
+      end(function (err, res) {
+        assert.equal(res.text, err.message);
+      });
   });
 });

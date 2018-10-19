@@ -8,13 +8,11 @@ const {join} = require(`path`);
 const DEFAULT_PORT = 3000;
 const HOSTNAME = `localhost`;
 const DIR_NAME_WITH_STATIC = `static`;
-
 const basePath = join(__dirname, `..`, DIR_NAME_WITH_STATIC);
 
 app.use(express.static(basePath));
 
 app.use(`/api/offers`, offersRouter);
-
 
 const NOT_FOUND_HANDLER = (req, res) => {
   res.status(404).send(`Такой страницы не существует!`);
@@ -23,11 +21,17 @@ const NOT_FOUND_HANDLER = (req, res) => {
 // eslint-disable-next-line no-unused-vars
 const ERROR_HANDLER = (err, req, res, next) => {
   if (err) {
+    const result = [];
+    const errorObj = {};
+    errorObj.error = err.name;
+    errorObj.errorMessage = err.message;
+    result.push(errorObj);
     const acceptElements = req.headers.accept.split(`,`);
-    const contentType = acceptElements.includes(`application/json`) ? `application/json; charset=UTF-8` : `text/html; charset=UTF-8`;
+    const isJSONSupported = acceptElements.includes(`application/json`);
+    const contentType = isJSONSupported ? `application/json; charset=UTF-8` : `text/html; charset=UTF-8`;
     res.setHeader(`Content-Type`, contentType);
     console.error(err);
-    res.status(err.code || 500).send(err.message);
+    res.status(err.code || 500).send(isJSONSupported ? JSON.stringify(result) : result);
   }
 };
 
