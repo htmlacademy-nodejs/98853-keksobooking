@@ -2,12 +2,11 @@
 
 const request = require(`supertest`);
 const assert = require(`assert`);
-const {offersRouter} = require(`../src/offers/route.js`);
-const express = require(`express`);
+const {startServer} = require(`../src/server.js`);
 
-const app = express();
+const DEFAULT_LIMIT_VALUE = 20;
 
-app.use(`/api/offers`, offersRouter);
+const app = startServer();
 
 describe(`GET /api/offers`, () => {
   it(`respond with JSON`, async () => {
@@ -18,11 +17,20 @@ describe(`GET /api/offers`, () => {
       expect(`Content-Type`, /json/).
       then((res) => {
         const offers = res.body;
-        assert.equal(offers.length, 20);
+        assert.equal(offers.length, DEFAULT_LIMIT_VALUE);
       });
   });
 
-  it(`get all offers?skip=2&limit=10`, async () => {
+  it(`if get data from unknown resource server will return the correct error code`, async () => {
+    return await request(app).
+      get(`/api/oneone`).
+      set(`Accept`, `application/json`).
+      expect(404).
+      expect(`Такой страницы не существует!`).
+      expect(`Content-Type`, /html/);
+  });
+
+  it(`get offers?skip=2&limit=10`, async () => {
     await request(app).
       get(`/api/offers?skip=2&limit=10`).
       set(`Accept`, `application/json`).
@@ -34,23 +42,52 @@ describe(`GET /api/offers`, () => {
       });
   });
 
-  it(`get all offers?skip=bla&limit=10`, async () => {
+  it(`if enter invalid parameter "skip" server will return the correct error code`, async () => {
     await request(app).
       get(`/api/offers?skip=bla&limit=10`).
-      set(`Accept`, `application/json`).
+      set(`Accept`, `text/html`).
       expect(400).
+      expect(`Content-Type`, `text/html; charset=utf-8`).
+      expect(`Неверное значение параметра "skip"!`);
+  });
+
+  it(`if enter invalid parameter "limit" server will return the correct error code`, async () => {
+    await request(app).
+      get(`/api/offers?skip=2&limit=bla`).
+      set(`Accept`, `text/html`).
+      expect(400).
+      expect(`Content-Type`, `text/html; charset=utf-8`).
+      expect(`Неверное значение параметра "limit"!`);
+  });
+
+  it(`if enter only one parameter "skip" the server will use default value of parameter "limit"`, async () => {
+    await request(app).
+      get(`/api/offers?skip=3`).
+      set(`Accept`, `application/json`).
+      expect(200).
       expect(`Content-Type`, /json/).
       then((res) => {
-        const message = res.body;
-        console.log(`${message} dsfsdfsdfsdfsdf`);
-        assert.equal(message, `Неверное значение параметра "skip"!`);
+        const offers = res.body;
+        assert.equal(offers.length, 17);
+      });
+  });
+
+  it(`if enter only one parameter "limit" the server will use default value of parameter "skip"`, async () => {
+    await request(app).
+      get(`/api/offers?limit=3`).
+      set(`Accept`, `application/json`).
+      expect(200).
+      expect(`Content-Type`, /json/).
+      then((res) => {
+        const offers = res.body;
+        assert.equal(offers.length, 3);
       });
   });
 
 });
 
 describe(`GET /api/offers/:date`, () => {
-  it(`get offer with date 1539441679957`, async () => {
+  it(`if offer with date "1539441679957" is found the server will return this offer`, async () => {
     await request(app).
       get(`/api/offers/1539441679957`).
       set(`Accept`, `application/json`).
@@ -62,12 +99,12 @@ describe(`GET /api/offers/:date`, () => {
       });
   });
 
-  it(`get offer with date 345638645873`, async () => {
+  it(`if offer with date "345638645873" is not found the server will return the correct error code`, async () => {
     await request(app).
       get(`/api/offers/345638645873`).
-      set(`Accept`, `application/json`).
+      set(`Accept`, `text/html`).
       expect(404).
       expect(`Объявлений с датой "345638645873" не нашлось!`).
-      expect(`Content-Type`, /json/);
+      expect(`Content-Type`, `text/html; charset=utf-8`);
   });
 });
