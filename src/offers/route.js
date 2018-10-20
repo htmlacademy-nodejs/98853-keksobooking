@@ -10,8 +10,8 @@ const DEFAULT_LIMIT_VALUE = 20;
 // eslint-disable-next-line new-cap
 const offersRouter = Router();
 
-const handleSkip = (offers, skip = DEFAULT_SKIP_VALUE) => offers.slice(skip);
-const handleLimit = (offers, limit = DEFAULT_LIMIT_VALUE) => offers.slice(0, limit);
+const handleSkip = (offers, skip) => offers.slice(skip);
+const handleLimit = (offers, limit) => offers.slice(0, limit);
 
 const offers = getOffers(DEFAULT_LIMIT_VALUE);
 
@@ -31,16 +31,15 @@ const limitValidationFn = (req, res, next) => {
   next();
 };
 
-const filtrationOffers = (req, res) => {
+offersRouter.get(``, [skipValidationFn, limitValidationFn, (req, res) => {
   const {skip, limit} = req.query;
   const filteredOffers = handleLimit(handleSkip(offers, skip), limit);
   if (!filteredOffers.length) {
     throw new BadRequest(`Неверное значение параметра skip или limit!`);
   }
   res.send(filteredOffers);
-};
-
-offersRouter.get(``, [skipValidationFn, limitValidationFn, filtrationOffers]);
+}
+]);
 
 offersRouter.get(`/:date`, (req, res) => {
   const offerDate = req.params.date;

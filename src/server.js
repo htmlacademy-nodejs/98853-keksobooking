@@ -18,10 +18,11 @@ const NOT_FOUND_HANDLER = (req, res) => {
   res.status(404).send(`Такой страницы не существует!`);
 };
 
-const generateJSONError = (err) => {
-  const errorObj = {};
-  errorObj.error = err.name;
-  errorObj.errorMessage = err.message;
+const generateJSONError = ({name: error, message: errorMessage}) => {
+  const errorObj = {
+    error,
+    errorMessage
+  };
   return [JSON.stringify(errorObj)];
 };
 
