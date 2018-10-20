@@ -16,7 +16,6 @@ class BadRequest extends Error {
   }
 }
 
-
 module.exports = {
   NotFoundError,
   BadRequest

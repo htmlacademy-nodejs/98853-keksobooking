@@ -18,20 +18,22 @@ const NOT_FOUND_HANDLER = (req, res) => {
   res.status(404).send(`Такой страницы не существует!`);
 };
 
+const generateJSONError = (err) => {
+  const errorObj = {};
+  errorObj.error = err.name;
+  errorObj.errorMessage = err.message;
+  return [JSON.stringify(errorObj)];
+};
+
+const generateStringError = (err) => `${err.code} ${err.name} ${err.message}`;
+
 // eslint-disable-next-line no-unused-vars
 const ERROR_HANDLER = (err, req, res, next) => {
   if (err) {
-    const result = [];
-    const errorObj = {};
-    errorObj.error = err.name;
-    errorObj.errorMessage = err.message;
-    result.push(errorObj);
     const acceptElements = req.headers.accept.split(`,`);
     const isJSONSupported = acceptElements.includes(`application/json`);
-    const contentType = isJSONSupported ? `application/json; charset=UTF-8` : `text/html; charset=UTF-8`;
-    res.setHeader(`Content-Type`, contentType);
     console.error(err);
-    res.status(err.code || 500).send(isJSONSupported ? JSON.stringify(result) : result);
+    res.status(err.code || 500).send(isJSONSupported ? generateJSONError(err) : generateStringError(err));
   }
 };
 

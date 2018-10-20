@@ -27,9 +27,7 @@ describe(`GET /api/offers`, () => {
       set(`Accept`, `application/json`).
       expect(404).
       expect(`Content-Type`, /html/).
-      end(function (err, res) {
-        assert.equal(res.text, err.message);
-      });
+      expect(`Такой страницы не существует!`);
   });
 
   it(`get offers?skip=2&limit=10`, async () => {
@@ -50,9 +48,7 @@ describe(`GET /api/offers`, () => {
       set(`Accept`, `text/html`).
       expect(400).
       expect(`Content-Type`, `text/html; charset=utf-8`).
-      end(function (err, res) {
-        assert.equal(res.text, err.message);
-      });
+      expect(`400 Bad Request Неверное значение параметра skip!`);
   });
 
   it(`if enter invalid parameter "limit" server will return the correct error code`, async () => {
@@ -61,9 +57,7 @@ describe(`GET /api/offers`, () => {
       set(`Accept`, `text/html`).
       expect(400).
       expect(`Content-Type`, `text/html; charset=utf-8`).
-      end(function (err, res) {
-        assert.equal(res.text, err.message);
-      });
+      expect(`400 Bad Request Неверное значение параметра limit!`);
   });
 
   it(`if enter only one parameter "skip" the server will use default value of parameter "limit"`, async () => {
@@ -111,8 +105,6 @@ describe(`GET /api/offers/:date`, () => {
       set(`Accept`, `text/html`).
       expect(404).
       expect(`Content-Type`, `text/html; charset=utf-8`).
-      end(function (err, res) {
-        assert.equal(res.text, err.message);
-      });
+      expect(`404 Not Found Объявлений с датой 345638645873 не нашлось!`);
   });
 });
