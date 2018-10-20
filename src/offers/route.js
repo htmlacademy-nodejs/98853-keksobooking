@@ -1,19 +1,23 @@
 'use strict';
 
-const {Router} = require(`express`);
+const {Router, json} = require(`express`);
 const {getOffers} = require(`../generate/offer-generate.js`);
 const {NotFoundError, BadRequest} = require(`../errors.js`);
 const {isInteger} = require(`../utils.js`);
+const multer = require(`multer`);
 const DEFAULT_SKIP_VALUE = 0;
 const DEFAULT_LIMIT_VALUE = 20;
 
 // eslint-disable-next-line new-cap
 const offersRouter = Router();
+const upload = multer({storage: multer.memoryStorage()});
 
 const handleSkip = (offers, skip) => offers.slice(skip);
 const handleLimit = (offers, limit) => offers.slice(0, limit);
 
 const offers = getOffers(DEFAULT_LIMIT_VALUE);
+
+const jsonParser = json();
 
 const skipValidationFn = (req, res, next) => {
   const skip = req.query.skip || DEFAULT_SKIP_VALUE;
@@ -50,6 +54,15 @@ offersRouter.get(`/:date`, (req, res) => {
   res.send(match);
 });
 
+
+offersRouter.post(``, jsonParser, upload.single(`avatar`), (req, res) => {
+  const body = req.body;
+  const avatar = req.file;
+  if (avatar) {
+    body.avatar = {name: avatar.originalname};
+  }
+  res.send(body);
+});
 
 module.exports = {
   offersRouter
