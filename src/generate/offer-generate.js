@@ -5,8 +5,8 @@ const {
   getRandomFromRange,
   getRandomSample,
   mixArr,
-  getRandomHash,
-  getDateInInterval
+  getRandomHash
+  // getDateInInterval
 } = require(`../utils.js`);
 
 const generatorOptions = require(`../data/generator-options.js`);
@@ -44,7 +44,7 @@ const generateEntity = () => ({
     x: getRandomLocation().x,
     y: getRandomLocation().y
   },
-  date: getDateInInterval(generatorOptions.TIME_INTERVAL_LENGTH)
+  date: 1539441679957 // getDateInInterval(generatorOptions.TIME_INTERVAL_LENGTH)
 });
 
 const getOffers = (count) => {
@@ -54,7 +54,6 @@ const getOffers = (count) => {
     result.push(offer);
   }
   return result;
-
 };
 
 module.exports = {

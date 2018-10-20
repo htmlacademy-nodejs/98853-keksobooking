@@ -5,7 +5,7 @@ const fs = require(`fs`);
 const {promisify} = require(`util`);
 const {getOffers} = require(`./offer-generate.js`);
 const {isInteger} = require(`../utils.js`);
-const MAX_OF_ELEMENTS_GENERATED = 10;
+const MAX_OF_ELEMENTS_GENERATED = 100;
 const MIN_OF_ELEMENTS_GENERATED = 1;
 const VALIDATION_FUNCTIONS = {
   isItYesOrNo(answer) {
