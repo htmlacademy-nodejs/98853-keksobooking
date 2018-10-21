@@ -45,18 +45,6 @@ describe(`POST /api/offers`, () => {
     assert.deepEqual(offer, {title: sent.title, price: sent.price, features: sent.features});
   });
 
-  it(`send offer as application/json`, async () => {
-    const response = await request(app).
-      post(`/api/offers`).
-      set(`Accept`, `application/json`).
-      set(`Content-Type`, `application/json`).
-      send(sent).
-      expect(200).
-      expect(`Content-Type`, /json/);
-    const offer = response.body;
-    assert.deepEqual(offer, sent);
-  });
-
   it(`send offer with avatar as multipart/form-data`, async () => {
     const response = await request(app).
       post(`/api/offers`).
