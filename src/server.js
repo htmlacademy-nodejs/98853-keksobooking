@@ -49,5 +49,6 @@ const startServer = (port = DEFAULT_PORT) => {
 
 
 module.exports = {
-  startServer
+  startServer,
+  app
 };

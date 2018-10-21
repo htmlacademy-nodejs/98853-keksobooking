@@ -2,11 +2,11 @@
 
 const request = require(`supertest`);
 const assert = require(`assert`);
-const {startServer} = require(`../src/server.js`);
+const {app} = require(`../src/server.js`);
 
 const DEFAULT_LIMIT_VALUE = 20;
 
-const app = startServer();
+// const app = startServer();
 
 describe(`GET /api/offers`, () => {
   it(`respond with JSON`, async () => {
