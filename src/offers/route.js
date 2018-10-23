@@ -7,6 +7,7 @@ const {isInteger} = require(`../utils.js`);
 const multer = require(`multer`);
 const DEFAULT_SKIP_VALUE = 0;
 const DEFAULT_LIMIT_VALUE = 20;
+const {validate} = require(`./validation.js`);
 
 // eslint-disable-next-line new-cap
 const offersRouter = Router();
@@ -61,8 +62,15 @@ offersRouter.post(``, jsonParser, upload.single(`avatar`), (req, res) => {
   if (avatar) {
     body.avatar = {name: avatar.originalname};
   }
-  res.send(body);
+  res.send(validate(body));
 });
+
+
+/* offersRouter.use((err, req, res, _next) => {
+  if (err instanceof ValidationError) {
+    res.status(err.code).json(err.message);
+  }
+});*/
 
 module.exports = {
   offersRouter

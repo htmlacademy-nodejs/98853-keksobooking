@@ -19,7 +19,7 @@ const sent = {
 };
 
 describe(`POST /api/offers`, () => {
-  it(`send offer as json`, async () => {
+  /* it(`send offer as json`, async () => {
     const response = await request(app).
       post(`/api/offers`).
       send(sent).
@@ -58,7 +58,20 @@ describe(`POST /api/offers`, () => {
       expect(`Content-Type`, /json/);
     const offer = response.body;
     assert.deepEqual(offer, {title: sent.title, price: sent.price, features: sent.features, avatar: {name: `keks.png`}});
+  });*/
+
+  it(`if send incorrect data server will return the correct error code`, async () => {
+    await request(app).
+      post(`/api/offers`).
+      field(`title`, `Title length less than 30`).
+      // field(`price`, `200000`).
+      set(`Accept`, `application/json`).
+      set(`Content-Type`, `multipart/form-data`).
+      expect(400).
+      expect(`Content-Type`, /json/).
+      expect([JSON.stringify({error: `Validation Error`, fieldName: `title`, errorMessage: `is required`})]);
   });
+
 
 });
 

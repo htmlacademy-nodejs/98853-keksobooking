@@ -4,6 +4,7 @@ const express = require(`express`);
 const app = express();
 const {offersRouter} = require(`./offers/route.js`);
 const {join} = require(`path`);
+const {ValidationError} = require(`./errors.js`);
 
 const DEFAULT_PORT = 3000;
 const HOSTNAME = `localhost`;
@@ -18,11 +19,16 @@ const NOT_FOUND_HANDLER = (req, res) => {
   res.status(404).send(`Такой страницы не существует!`);
 };
 
-const generateJSONError = ({name: error, message: errorMessage}) => {
+const generateJSONError = ({name: error, message: errorMessage, field: fieldName}) => {
   const errorObj = {
     error,
+    fieldName,
     errorMessage
   };
+  if (!fieldName) {
+    delete errorObj.fieldName;
+  }
+  console.log(errorObj);
   return [JSON.stringify(errorObj)];
 };
 
@@ -37,6 +43,7 @@ const ERROR_HANDLER = (err, req, res, next) => {
     res.status(err.code || 500).send(isJSONSupported ? generateJSONError(err) : generateStringError(err));
   }
 };
+
 
 app.use(NOT_FOUND_HANDLER);
 
