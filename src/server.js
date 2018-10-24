@@ -4,7 +4,6 @@ const express = require(`express`);
 const app = express();
 const {offersRouter} = require(`./offers/route.js`);
 const {join} = require(`path`);
-const {ValidationError} = require(`./errors.js`);
 
 const DEFAULT_PORT = 3000;
 const HOSTNAME = `localhost`;
@@ -19,17 +18,22 @@ const NOT_FOUND_HANDLER = (req, res) => {
   res.status(404).send(`Такой страницы не существует!`);
 };
 
-const generateJSONError = ({name: error, message: errorMessage, field: fieldName}) => {
-  const errorObj = {
-    error,
-    fieldName,
-    errorMessage
-  };
-  if (!fieldName) {
-    delete errorObj.fieldName;
+const generateJSONError = ({name: error, message: errorMessage, errors}) => {
+  let errorObj = {};
+  if (!errors) {
+    errorObj = {
+      error,
+      errorMessage
+    };
   }
-  console.log(errorObj);
-  return [JSON.stringify(errorObj)];
+  errorObj = errors.map((it) => {
+    return {
+      error,
+      fieldName: Object.keys(it)[0],
+      errorMessage: Object.values(it)[0]
+    };
+  });
+  return JSON.stringify(errorObj);
 };
 
 const generateStringError = (err) => `${err.code} ${err.name} ${err.message}`;
@@ -39,6 +43,8 @@ const ERROR_HANDLER = (err, req, res, next) => {
   if (err) {
     const acceptElements = req.headers.accept.split(`,`);
     const isJSONSupported = acceptElements.includes(`application/json`);
+    const contentType = isJSONSupported ? `application/json; charset=UTF-8` : `text/html; charset=UTF-8`;
+    res.setHeader(`Content-Type`, contentType);
     console.error(err);
     res.status(err.code || 500).send(isJSONSupported ? generateJSONError(err) : generateStringError(err));
   }

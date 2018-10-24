@@ -66,12 +66,6 @@ offersRouter.post(``, jsonParser, upload.single(`avatar`), (req, res) => {
 });
 
 
-/* offersRouter.use((err, req, res, _next) => {
-  if (err instanceof ValidationError) {
-    res.status(err.code).json(err.message);
-  }
-});*/
-
 module.exports = {
   offersRouter
 };

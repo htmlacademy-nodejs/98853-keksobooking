@@ -9,7 +9,7 @@ const REG_EXP_FOR_URL = /^(ftp|http|https):\/\/[^ "]+$/;
 
 let data;
 
-/*describe(`Generate object with offer's options`, () => {
+describe(`Generate object with offer's options`, () => {
 
   before(() => {
     data = generateEntity();
@@ -121,4 +121,4 @@ let data;
     assert.equal(true, data.location.y <= generatorOptions.MAX_Y);
   });
 
-});*/
+});

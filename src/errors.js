@@ -17,15 +17,11 @@ class BadRequest extends Error {
 }
 
 class ValidationError extends Error {
-  constructor(message, field) {
-    super(message);
+  constructor(errors) {
+    super(errors);
     this.code = 400;
     this.name = `Validation Error`;
-    this.field = field;
-  }
-
-  getField() {
-    return this.field;
+    this.errors = errors;
   }
 }
 
