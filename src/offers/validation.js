@@ -11,130 +11,110 @@ const TimeLimits = {
   MAX_MINUTS: 60
 };
 
-
 const lengthValidate = (min, max, title) => title.length >= min && title.length < max;
-
 const typeValidate = (type) => generatorOptions.TYPES.includes(type);
-
 const inRangeValidate = (min, max, value) => value >= min && value < max;
-
 const checkValidate = (check) => {
   const array = check.split(`:`);
   const hours = Number(array[0]);
-  const minuts = Number(array[1])
+  const minuts = Number(array[1]);
   const hoursValidate = hours >= TimeLimits.MIN_HOURS && hours <= TimeLimits.MAX_HOURS;
   const minutsValidate = minuts >= TimeLimits.MIN_MINUTS && minuts <= TimeLimits.MAX_MINUTS;
   return hoursValidate && minutsValidate;
 };
 
-
-const VALIDATION_FUNCTIONS = {
+const REQUIRED_VALUES = {
   title: {
-    validate() {
-      return lengthValidate(30, 140, this);
+    minLength: 30,
+    maxLength: 140,
+    validate(title) {
+      return lengthValidate(this.minLength, this.maxLength, title);
     },
-    require: true
+    getErrorMessage() {
+      return `Введите значение от ${this.minLength} до ${this.maxLength} символов`
+    }
   },
   type: {
-    validate() {
-      return typeValidate(this)
+    validate(type) {
+      return typeValidate(type);
     },
-    require: true
+    getErrorMessage() {
+      return `Введите одно из следующий значений: ${generatorOptions.TYPES.join(`, `)}`;
+    }
   },
   price: {
-    validate() {
-      return inRangeValidate(1, 100000, this)
+    minPrice: 1000,
+    maxPrice: 1000000,
+    validate(price) {
+      return inRangeValidate(this.minPrice, this.maxPrice, price);
     },
-    require: true
+    getErrorMessage() {
+      return `Введите значение от ${this.minPrice} до ${this.maxPrice}`
+    }
   },
   checkin: {
-    validate() {
-      return checkValidate(this)
+    validate(checkin) {
+      return checkValidate(checkin);
     },
-    require: true
+    getErrorMessage() {
+      return `Введите время в формате HH:mm`
+    }
   },
   checkout: {
-    validate() {
-      return checkValidate(this)
+    validate(checkout) {
+      return checkValidate(checkout);
     },
-    require: true
+    getErrorMessage() {
+      return `Введите время в формате HH:mm`
+    }
   },
   rooms: {
-    validate() {
-      return inRangeValidate(0, 1000, this)
+    minRoomsCount: 0,
+    maxRoomsCount: 1000,
+    validate(rooms) {
+      return inRangeValidate(this.minRoomsCount, this.maxRoomsCount, rooms);
     },
-    require: true
-  },
-  features: {
-    validate() {
-      const difference = this && this.length ? getInvalidValue(this, generatorOptions.FEATURES) : false;
-      return !difference || !difference.length
+    getErrorMessage() {
+      return `Введите значение от ${this.minRoomsCount} до ${this.maxRoomsCount}`
     }
   },
   address: {
-    validate() {
-      return data.address && lengthValidate(0, 100, data.address)
+    minLength: 2,
+    maxLength: 100,
+    validate(address) {
+      return address && lengthValidate(this.minLength, this.maxLength, address);
+    },
+    getErrorMessage() {
+      return `Введите значение от ${this.minLength} до ${this.maxLength} символов`
     }
   }
-  name: {
-    validate() {
-      return
-    }
-  }
-
-
 };
 
+let required = Object.keys(REQUIRED_VALUES);
+
 const validate = (data) => {
-
-
   const errors = [];
-
-  Object.keys(data).forEach(it => {
-    if (it.require) {
-
+  // проверяем все ли обязательные поля присутсвуют в приходящих данных, если да, валидируем их
+  required.forEach((it) => {
+    if (!Object.keys(data).includes(it)) {
+      errors.push({[it]: `is required`});
+    } else if (!REQUIRED_VALUES[it].validate(data[it])) {
+      errors.push({[it]: REQUIRED_VALUES[it].getErrorMessage()});
     }
-    if (!VALIDATION_FUNCTIONS.it.validate()) {
-      errors.push({it: it.errorMessage});
-    }
-  })
+  });
 
   if (!data.name) {
     data.name = getRandomFromArr(generatorOptions.NAMES);
   }
-
-
-
-  /*if (!data.title || !lengthValidate(30, 140, data.title)) {
-    errors.push({title: `is required`});
-  }
-  if (!data.type || !typeValidate(data.type)) {
-    errors.push({type: `is required`});
-  }
-  if (!data.price || !inRangeValidate(1, 100000, data.price)) {
-    errors.push({price: `is required`});
-  }
-  if (!data.checkin || !checkValidate(data.checkin)) {
-    errors.push({checkin: `is required`});
-  }
-  if (!data.checkout || !checkValidate(data.checkout)) {
-    errors.push({checkout: `is required`});
-  }
-  if (!data.rooms || !inRangeValidate(0, 1000, data.rooms)) {
-    errors.push({rooms: `is required`});
-  }
+  // если в features присутствуют недопустимые значения, выводим их
+  const difference = data.features && data.features.length ? getInvalidValue(data.features, generatorOptions.FEATURES) : false;
   if (difference && difference.length) {
-    errors.push({features: `недопустимое значение ${[...difference]}`});
+    errors.push({features: `Недопустимое значение ${difference}`});
   }
-  if (!data.name) {
-    data.name = getRandomFromArr(generatorOptions.NAMES);
-  }
-  if (data.address && lengthValidate(0, 100, data.address)) {
-    const coordinates = data.address.split(`,`);
-    data.location = {x: coordinates[0], y: coordinates[1]}
-  } else {
-    errors.push({address: `is required`});
-  }*/
+
+  const coordinates = data.address.split(`,`);
+  data.location = {x: coordinates[0], y: coordinates[1]};
+
   if (errors.length > 0) {
     throw new ValidationError(errors);
   }

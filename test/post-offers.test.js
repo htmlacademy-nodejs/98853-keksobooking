@@ -29,7 +29,7 @@ describe(`POST /api/offers`, () => {
       expect(200).
       expect(`Content-Type`, /json/);
     const offer = response.body;
-    assert.deepEqual(offer, {...sent, location: {x: `471`, y: `545`}});
+    assert.deepEqual(offer, {...sent, location: {x: `471`, y: `545`}}); // eslint-disable-line no-use-before-define
   });
 
  it(`send offer as multipart/form-data`, async () => {
@@ -77,10 +77,12 @@ describe(`POST /api/offers`, () => {
       post(`/api/offers`).
       field(`title`, `Title length less than 30`).
       field(`type`, `box`).
-      field(`price`, `200000`).
+      field(`price`, `2000000`).
       field(`checkin`, `122:00`).
       field(`checkout`, `17:00`).
       field(`features`, [`elevator`, `conditioner`, `telefon`]).
+      field(`rooms`, `600000`).
+      field(`address`, `541,222`).
       set(`Accept`, `application/json`).
       set(`Content-Type`, `multipart/form-data`).
       expect(400).
@@ -89,37 +91,32 @@ describe(`POST /api/offers`, () => {
         {
           error: `Validation Error`,
           fieldName: `title`,
-          errorMessage: `is required`
+          errorMessage: `Введите значение от 30 до 140 символов`
         },
         {
           error: `Validation Error`,
           fieldName: `type`,
-          errorMessage: `is required`
+          errorMessage: `Введите одно из следующий значений: flat, palace, house, bungalo`
         },
         {
           error: `Validation Error`,
           fieldName: `price`,
-          errorMessage: `is required`
+          errorMessage: `Введите значение от 1000 до 1000000`
         },
         {
           error: `Validation Error`,
           fieldName: `checkin`,
-          errorMessage: `is required`
+          errorMessage: `Введите время в формате HH:mm`
         },
         {
           error: `Validation Error`,
           fieldName: `rooms`,
-          errorMessage: `is required`
+          errorMessage: `Введите значение от 0 до 1000`
         },
         {
           error: `Validation Error`,
           fieldName: `features`,
-          errorMessage: `недопустимое значение telefon`
-        },
-        {
-          error: `Validation Error`,
-          fieldName: `address`,
-          errorMessage: `is required`
+          errorMessage: `Недопустимое значение telefon`
         }
       ])
       );
