@@ -25,11 +25,12 @@ const getRandomLocation = () => ({
 
 const generateEntity = () => ({
   author: {
+    name: getRandomFromArr(generatorOptions.NAMES),
     avatar: getAvatarUrl()
   },
   offer: {
     title: getRandomFromArr(generatorOptions.TITLES),
-    address: ``,
+    address: `540,472`,
     price: getRandomFromRange(generatorOptions.MIN_PRICE, generatorOptions.MAX_PRICE),
     type: getRandomFromArr(generatorOptions.TYPES),
     rooms: getRandomFromRange(generatorOptions.MIN_ROOMS_COUNT, generatorOptions.MAX_ROOMS_COUNT),
