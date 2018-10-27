@@ -16,7 +16,20 @@ class BadRequest extends Error {
   }
 }
 
+class ValidationError extends Error {
+  constructor(errors) {
+    super(errors);
+    this.code = 400;
+    this.name = `Validation Error`;
+    this.message = errors.map((err) => {
+      return Object.assign({}, {error: this.name}, err);
+    });
+  }
+}
+
+
 module.exports = {
   NotFoundError,
-  BadRequest
+  BadRequest,
+  ValidationError
 };

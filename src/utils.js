@@ -39,6 +39,8 @@ const getRandomHash = (length) => Math.random().toString(36).slice(-length);
 
 const isInteger = (num) => (num ^ 0) === num;
 
+const getInvalidValue = (current, original) => current.filter((it) => !original.includes(it));
+
 module.exports = {
   getRandomFromArr,
   getRandomFromRange,
@@ -46,5 +48,6 @@ module.exports = {
   mixArr,
   getDateInInterval,
   getRandomHash,
-  isInteger
+  isInteger,
+  getInvalidValue
 };
