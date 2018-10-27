@@ -42,9 +42,17 @@ const isTimeFormat = (data, errMessage) => {
   const minutsValidate = minuts >= TimeLimits.MIN_MINUTS && minuts <= TimeLimits.MAX_MINUTS;
   return hoursValidate && minutsValidate ? null : errMessage;
 };
-
-const isArrayIsValid = (original) => (data, errMessage) => {
-  const difference = data && data.length ? getInvalidValue(data, original) : false;
+const isArrayOfUniqueValues = (data, errMessage) => {
+  if (!data || !data.length) {
+    return null;
+  }
+  return data.length === new Set(data).size ? null : errMessage;
+};
+const isArrayMatch = (original) => (data, errMessage) => {
+  if (!data || !data.length) {
+    return null;
+  }
+  const difference = getInvalidValue(data, original);
   return !difference || !difference.length ? null : errMessage;
 };
 
@@ -78,7 +86,7 @@ const offersSchema = {
     errorMessage: `Введите значение от ${ValidateOptions.address.MIN_LENGTH} до ${ValidateOptions.address.MAX_LENGTH} символов`
   },
   features: {
-    validationFunctions: [isArrayIsValid(generatorOptions.FEATURES)],
+    validationFunctions: [isArrayMatch(generatorOptions.FEATURES), isArrayOfUniqueValues],
     errorMessage: `Недопустимое значение`
   }
 };
@@ -88,11 +96,12 @@ let fields = Object.keys(offersSchema);
 const validate = (data) => {
   const errors = fields.reduce((acc, it) => {
     offersSchema[it].validationFunctions.forEach((fn) => {
-      const error = fn(data[it], offersSchema[it].errorMessage);
+      const {errorMessage} = offersSchema[it];
+      const error = fn(data[it], errorMessage);
       if (error) {
         acc.push({
           fieldName: it,
-          errorMessage: fn(data[it], error)
+          errorMessage
         });
       }
     });
