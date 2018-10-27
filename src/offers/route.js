@@ -8,6 +8,8 @@ const multer = require(`multer`);
 const DEFAULT_SKIP_VALUE = 0;
 const DEFAULT_LIMIT_VALUE = 20;
 const {validate} = require(`./validation.js`);
+const generatorOptions = require(`../data/generator-options.js`);
+const {getRandomFromArr} = require(`../utils.js`);
 
 // eslint-disable-next-line new-cap
 const offersRouter = Router();
@@ -56,14 +58,26 @@ offersRouter.get(`/:date`, (req, res) => {
 });
 
 
-offersRouter.post(``, jsonParser, upload.single(`avatar`), (req, res) => {
-  const body = req.body;
+const dataValidation = (req, res, _next) => {
   const avatar = req.file;
   if (avatar) {
-    body.avatar = {name: avatar.originalname};
+    req.body.avatar = {name: avatar.originalname};
   }
-  res.send(validate(body));
-});
+  validate(req.body);
+  _next();
+};
+
+const setDataValue = (req, res, _next) => {
+  const body = req.body;
+  if (!body.name) {
+    body.name = getRandomFromArr(generatorOptions.NAMES);
+  }
+  const coordinates = body.address.split(`,`);
+  body.location = {x: coordinates[0], y: coordinates[1]};
+  res.send(body);
+};
+
+offersRouter.post(``, jsonParser, upload.single(`avatar`), [dataValidation, setDataValue]);
 
 
 module.exports = {

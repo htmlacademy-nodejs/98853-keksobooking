@@ -22,10 +22,7 @@ class ValidationError extends Error {
     this.code = 400;
     this.name = `Validation Error`;
     this.message = errors.map((err) => {
-      return {
-        error: this.name,
-        ...err
-      };
+      return Object.assign({}, {error: this.name}, err);
     });
   }
 }

@@ -25,7 +25,7 @@ describe(`POST /api/offers`, () => {
       expect(200).
       expect(`Content-Type`, /json/);
     const offer = response.body;
-    assert.deepEqual(offer, {...sent, location: {x: `471`, y: `545`}});
+    assert.deepEqual(offer, Object.assign({}, sent, {location: {x: `471`, y: `545`}}));
   });
 
   it(`send offer as multipart/form-data`, async () => {
@@ -44,7 +44,7 @@ describe(`POST /api/offers`, () => {
       expect(200).
       expect(`Content-Type`, /json/);
     const offer = response.body;
-    assert.deepEqual(offer, {...sent, location: {x: `471`, y: `545`}});
+    assert.deepEqual(offer, Object.assign({}, sent, {location: {x: `471`, y: `545`}}));
   });
 
   it(`send offer with avatar as multipart/form-data`, async () => {
@@ -64,11 +64,11 @@ describe(`POST /api/offers`, () => {
       expect(200).
       expect(`Content-Type`, /json/);
     const offer = response.body;
-    assert.deepEqual(offer, {...sent, location: {x: `471`, y: `545`}, avatar: {name: `keks.png`}});
+    assert.deepEqual(offer, Object.assign({}, sent, {location: {x: `471`, y: `545`}}, {avatar: {name: `keks.png`}}));
   });
 
 
-  it(`if send incorrect data server will return the correct error code`, async () => {
+  it(`if send incorrect data server will return the correct response`, async () => {
     await request(app).
       post(`/api/offers`).
       field(`title`, `Title length less than 30`).
@@ -112,7 +112,7 @@ describe(`POST /api/offers`, () => {
         {
           error: `Validation Error`,
           fieldName: `features`,
-          errorMessage: `Недопустимое значение telefon`
+          errorMessage: `Недопустимое значение`
         }
       ])
       );
