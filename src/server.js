@@ -4,7 +4,6 @@ const express = require(`express`);
 const app = express();
 const {offersRouter} = require(`./offers/route.js`);
 const {join} = require(`path`);
-
 const DEFAULT_PORT = 3000;
 const HOSTNAME = `localhost`;
 const DIR_NAME_WITH_STATIC = `static`;
@@ -18,22 +17,13 @@ const NOT_FOUND_HANDLER = (req, res) => {
   res.status(404).send(`Такой страницы не существует!`);
 };
 
-const generateJSONError = ({name: error, message: errorMessage, errors}) => {
-  let errorObj = {};
-  if (!errors) {
-    errorObj = {
-      error,
-      errorMessage
-    };
-  }
-  errorObj = errors.map((it) => {
-    return {
-      error,
-      fieldName: Object.keys(it)[0],
-      errorMessage: Object.values(it)[0]
-    };
-  });
-  return JSON.stringify(errorObj);
+const generateJSONError = ({name: error, message: errorMessage}) => {
+  let errorObj = {
+    error,
+    errorMessage
+  };
+  const errorBody = error === `Validation Error` ? errorMessage : errorObj;
+  return JSON.stringify(errorBody);
 };
 
 const generateStringError = (err) => `${err.code} ${err.name} ${err.message}`;
@@ -50,16 +40,13 @@ const ERROR_HANDLER = (err, req, res, next) => {
   }
 };
 
-
 app.use(NOT_FOUND_HANDLER);
 
 app.use(ERROR_HANDLER);
 
-
 const startServer = (port = DEFAULT_PORT) => {
   return app.listen(port, () => console.log(`Server starting... Go to http://${HOSTNAME}:${port}`));
 };
-
 
 module.exports = {
   startServer,

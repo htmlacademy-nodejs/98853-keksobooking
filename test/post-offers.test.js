@@ -3,10 +3,6 @@
 const request = require(`supertest`);
 const assert = require(`assert`);
 const {app} = require(`../src/server.js`);
-const {generateEntity} = require(`../src/generate/offer-generate.js`);
-
-
-const randomOffer = generateEntity();
 
 const sent = {
   name: `Petr`,
@@ -29,10 +25,10 @@ describe(`POST /api/offers`, () => {
       expect(200).
       expect(`Content-Type`, /json/);
     const offer = response.body;
-    assert.deepEqual(offer, {...sent, location: {x: `471`, y: `545`}}); // eslint-disable-line no-use-before-define
+    assert.deepEqual(offer, {...sent, location: {x: `471`, y: `545`}});
   });
 
- it(`send offer as multipart/form-data`, async () => {
+  it(`send offer as multipart/form-data`, async () => {
     const response = await request(app).
       post(`/api/offers`).
       field(`name`, sent.name).
@@ -72,7 +68,7 @@ describe(`POST /api/offers`, () => {
   });
 
 
- it(`if send incorrect data server will return the correct error code`, async () => {
+  it(`if send incorrect data server will return the correct error code`, async () => {
     await request(app).
       post(`/api/offers`).
       field(`title`, `Title length less than 30`).

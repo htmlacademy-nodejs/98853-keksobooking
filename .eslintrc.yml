@@ -5,5 +5,6 @@ env:
   mocha: true
 extends: 'eslint-config-htmlacademy/node'
 parserOptions:
-  ecmaVersion: 2017
+  ecmaVersion: 2018
+
 
