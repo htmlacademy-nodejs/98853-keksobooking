@@ -7,8 +7,8 @@ const {getInvalidValue} = require(`../utils.js`);
 const TimeLimits = {
   MIN_HOURS: 0,
   MAX_HOURS: 24,
-  MIN_MINUTS: 0,
-  MAX_MINUTS: 60
+  MIN_MINUTES: 0,
+  MAX_MINUTES: 60
 };
 
 const ValidateOptions = {
@@ -37,10 +37,10 @@ const isInRange = (min, max) => (data, errMessage) => data >= min && data < max 
 const isTimeFormat = (data, errMessage) => {
   const array = data.split(`:`);
   const hours = Number(array[0]);
-  const minuts = Number(array[1]);
+  const MINUTES = Number(array[1]);
   const hoursValidate = hours >= TimeLimits.MIN_HOURS && hours <= TimeLimits.MAX_HOURS;
-  const minutsValidate = minuts >= TimeLimits.MIN_MINUTS && minuts <= TimeLimits.MAX_MINUTS;
-  return hoursValidate && minutsValidate ? null : errMessage;
+  const MINUTESValidate = MINUTES >= TimeLimits.MIN_MINUTES && MINUTES <= TimeLimits.MAX_MINUTES;
+  return hoursValidate && MINUTESValidate ? null : errMessage;
 };
 const isArrayOfUniqueValues = (data, errMessage) => {
   if (!data || !data.length) {
