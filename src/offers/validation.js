@@ -48,12 +48,12 @@ const isArrayOfUniqueValues = (data, errMessage) => {
   }
   return data.length === new Set(data).size ? null : errMessage;
 };
-const isArrayMatch = (original) => (data, errMessage) => {
+const getInvalidValues = (original) => (data, errMessage) => {
   if (!data || !data.length) {
     return null;
   }
-  const difference = getInvalidValue(data, original);
-  return !difference || !difference.length ? null : errMessage;
+  const invalidValues = getInvalidValue(data, original);
+  return !invalidValues.length ? null : errMessage;
 };
 
 const offersSchema = {
@@ -86,7 +86,7 @@ const offersSchema = {
     errorMessage: `Введите значение от ${ValidateOptions.address.MIN_LENGTH} до ${ValidateOptions.address.MAX_LENGTH} символов`
   },
   features: {
-    validationFunctions: [isArrayMatch(generatorOptions.FEATURES), isArrayOfUniqueValues],
+    validationFunctions: [getInvalidValues(generatorOptions.FEATURES), isArrayOfUniqueValues],
     errorMessage: `Недопустимое значение`
   }
 };
