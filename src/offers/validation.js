@@ -42,18 +42,22 @@ const isTimeFormat = (data, errMessage) => {
   const MINUTESValidate = MINUTES >= TimeLimits.MIN_MINUTES && MINUTES <= TimeLimits.MAX_MINUTES;
   return hoursValidate && MINUTESValidate ? null : errMessage;
 };
+
 const isArrayOfUniqueValues = (data, errMessage) => {
-  if (!data || !data.length) {
-    return null;
+  const array = Array.isArray(data) ? data : [data];
+  if (array && array.length > 1) {
+    return array.length === new Set(array).size ? null : errMessage;
   }
-  return data.length === new Set(data).size ? null : errMessage;
+  return null;
 };
+
+
 const getInvalidValues = (original) => (data, errMessage) => {
-  if (!data || !data.length) {
-    return null;
+  if (data && data.length) {
+    const invalidValues = getInvalidValue(data, original);
+    return !invalidValues.length ? null : errMessage;
   }
-  const invalidValues = getInvalidValue(data, original);
-  return !invalidValues.length ? null : errMessage;
+  return null;
 };
 
 const offersSchema = {
@@ -96,7 +100,7 @@ let fields = Object.keys(offersSchema);
 const validate = (data) => {
   const errors = fields.reduce((acc, it) => {
     offersSchema[it].validationFunctions.forEach((fn) => {
-      const {errorMessage} = offersSchema[it];
+      const errorMessage = fn.name === `isRequire` ? `is required` : offersSchema[it].errorMessage;
       const error = fn(data[it], errorMessage);
       if (error) {
         acc.push({

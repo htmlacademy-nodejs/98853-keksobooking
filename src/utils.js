@@ -39,7 +39,10 @@ const getRandomHash = (length) => Math.random().toString(36).slice(-length);
 
 const isInteger = (num) => (num ^ 0) === num;
 
-const getInvalidValue = (current, original) => current.filter((it) => !original.includes(it));
+const getInvalidValue = (current, original) => {
+  const array = Array.isArray(current) ? current : [current];
+  return array.filter((it) => !original.includes(it));
+};
 
 module.exports = {
   getRandomFromArr,

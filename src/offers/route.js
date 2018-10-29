@@ -1,7 +1,6 @@
 'use strict';
 
 const {Router, json} = require(`express`);
-const {getOffers} = require(`../generate/offer-generate.js`);
 const {NotFoundError, BadRequest} = require(`../errors.js`);
 const {isInteger} = require(`../utils.js`);
 const multer = require(`multer`);
@@ -10,21 +9,29 @@ const DEFAULT_LIMIT_VALUE = 20;
 const {validate} = require(`./validation.js`);
 const generatorOptions = require(`../data/generator-options.js`);
 const {getRandomFromArr} = require(`../utils.js`);
+const toStream = require(`buffer-to-stream`);
+
 
 // eslint-disable-next-line new-cap
 const offersRouter = Router();
 const upload = multer({storage: multer.memoryStorage()});
 
-const handleSkip = (offers, skip) => offers.slice(skip);
-const handleLimit = (offers, limit) => offers.slice(0, limit);
 
-const offers = getOffers(DEFAULT_LIMIT_VALUE);
+const filterOffers = async (cursor, skip = DEFAULT_SKIP_VALUE, limit = DEFAULT_LIMIT_VALUE) => ({
+  data: await cursor.skip(Number(skip)).limit(Number(limit)).toArray(),
+  skip,
+  limit,
+  total: await cursor.count()
+});
+
+
+const asyncMiddleware = (fn) => (req, res, next) => fn(req, res, next).catch(next);
 
 const jsonParser = json();
 
 const skipValidationFn = (req, res, next) => {
   const skip = req.query.skip || DEFAULT_SKIP_VALUE;
-  if (!isInteger(Number(skip)) || skip > offers.length || skip < 0) {
+  if (!isInteger(Number(skip)) || skip < 0) {
     throw new BadRequest(`Неверное значение параметра skip!`);
   }
   next();
@@ -38,24 +45,55 @@ const limitValidationFn = (req, res, next) => {
   next();
 };
 
-offersRouter.get(``, [skipValidationFn, limitValidationFn, (req, res) => {
+offersRouter.get(``, [skipValidationFn, limitValidationFn, asyncMiddleware(async (req, res) => {
   const {skip, limit} = req.query;
-  const filteredOffers = handleLimit(handleSkip(offers, skip), limit);
-  if (!filteredOffers.length) {
+  const offers = await offersRouter.offerStore.getAllOffers();
+  const filteredOffers = await filterOffers(offers, skip, limit);
+  if (!filteredOffers.data.length) {
     throw new BadRequest(`Неверное значение параметра skip или limit!`);
   }
   res.send(filteredOffers);
-}
+})
 ]);
 
-offersRouter.get(`/:date`, (req, res) => {
+offersRouter.get(`/:date`, asyncMiddleware(async (req, res) => {
   const offerDate = req.params.date;
-  const match = offers.find((it) => it.date === Number(offerDate));
-  if (!match) {
+  const offer = await offersRouter.offerStore.getOffer(offerDate);
+  if (!offer) {
     throw new NotFoundError(`Объявлений с датой ${offerDate} не нашлось!`);
   }
-  res.send(match);
-});
+  res.send(offer);
+}));
+
+
+offersRouter.get(`/:date/avatar`, asyncMiddleware(async (req, res) => {
+  const offerDate = req.params.date;
+
+  const offer = await offersRouter.offerStore.getOffer(offerDate);
+  if (!offer) {
+    throw new NotFoundError(`Объявлений с датой ${offerDate} не нашлось!`);
+  }
+
+  const {info, stream, mimetype} = await offersRouter.imageStore.get(offer._id);
+
+  console.log(info);
+  console.log(mimetype);
+  console.log(stream);
+
+  if (!info) {
+    throw new NotFoundError(`Файл не найден!`);
+  }
+
+  res.header(`Content-Type`, mimetype);
+  res.header(`Content-Length`, info.length);
+
+  res.on(`error`, (e) => console.error(e));
+  res.on(`end`, () => res.end());
+
+  stream.on(`error`, (e) => console.error(e));
+  stream.on(`end`, () => res.end());
+  stream.pipe(res);
+}));
 
 
 const dataValidation = (req, res, _next) => {
@@ -68,20 +106,33 @@ const dataValidation = (req, res, _next) => {
 };
 
 const setDataValue = (req, res, _next) => {
-  const body = req.body;
+  const {body} = req;
   if (!body.name) {
     body.name = getRandomFromArr(generatorOptions.NAMES);
   }
   const coordinates = body.address.split(`,`);
   body.location = {x: coordinates[0], y: coordinates[1]};
-  res.send(body);
+  _next();
 };
 
-offersRouter.post(``, jsonParser, upload.single(`avatar`), [dataValidation, setDataValue]);
+const saveAndSendData = asyncMiddleware(async (req, res, _next) => {
+  const {body} = req;
+  const result = await offersRouter.offerStore.save(body);
+  const {insertedId} = result;
+  const avatar = req.file;
+
+  if (avatar) {
+    await offersRouter.imageStore.save(insertedId, toStream(avatar.buffer));
+  }
+
+  res.send(`Данные загружены успешно!`);
+});
+
+offersRouter.post(``, jsonParser, upload.single(`avatar`), [dataValidation, setDataValue, saveAndSendData]);
 
 
-module.exports = {
-  offersRouter
+module.exports = (offerStore, imageStore) => {
+  offersRouter.offerStore = offerStore;
+  offersRouter.imageStore = imageStore;
+  return offersRouter;
 };
-
-

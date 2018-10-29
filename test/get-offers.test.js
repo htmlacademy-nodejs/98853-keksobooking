@@ -6,7 +6,11 @@ const {app} = require(`../src/server.js`);
 
 const DEFAULT_LIMIT_VALUE = 20;
 
-// const app = startServer();
+const offersStoreMock = require(`./mock/offers-store-mock`);
+const imagesStoreMock = require(`./mock/images-store-mock`);
+const offersRouter = require(`../src/offers/route.js`)(offersStoreMock, imagesStoreMock);
+
+app.use(`/api/wizards`, offersRouter);
 
 describe(`GET /api/offers`, () => {
   it(`respond with JSON`, async () => {
@@ -16,7 +20,7 @@ describe(`GET /api/offers`, () => {
       expect(200).
       expect(`Content-Type`, /json/).
       then((res) => {
-        const offers = res.body;
+        const offers = res.body.data;
         assert.equal(offers.length, DEFAULT_LIMIT_VALUE);
       });
   });
@@ -37,7 +41,7 @@ describe(`GET /api/offers`, () => {
       expect(200).
       expect(`Content-Type`, /json/).
       then((res) => {
-        const offers = res.body;
+        const offers = res.body.data;
         assert.equal(offers.length, 10);
       });
   });
@@ -67,8 +71,8 @@ describe(`GET /api/offers`, () => {
       expect(200).
       expect(`Content-Type`, /json/).
       then((res) => {
-        const offers = res.body;
-        assert.equal(offers.length, 17);
+        const offers = res.body.data;
+        assert.equal(offers.length, 20);
       });
   });
 
@@ -79,7 +83,7 @@ describe(`GET /api/offers`, () => {
       expect(200).
       expect(`Content-Type`, /json/).
       then((res) => {
-        const offers = res.body;
+        const offers = res.body.data;
         assert.equal(offers.length, 3);
       });
   });
