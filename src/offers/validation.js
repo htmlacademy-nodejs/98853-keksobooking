@@ -30,7 +30,7 @@ const ValidateOptions = {
   }
 };
 
-const isRequire = (data, errMessage) => data ? null : errMessage;
+const isRequire = (data, errMessage) => data ? null : `is required`;
 const isLengthInRange = (min, max) => (data, errMessage) => data.length >= min && data.length < max ? null : errMessage;
 const isInArray = (array) => (data, errMessage) => array.includes(data) ? null : errMessage;
 const isInRange = (min, max) => (data, errMessage) => data >= min && data < max ? null : errMessage;
@@ -96,7 +96,7 @@ let fields = Object.keys(offersSchema);
 const validate = (data) => {
   const errors = fields.reduce((acc, it) => {
     offersSchema[it].validationFunctions.forEach((fn) => {
-      const {errorMessage} = offersSchema[it];
+      const errorMessage = fn.name === `isRequire` ? `is required` : offersSchema[it].errorMessage;
       const error = fn(data[it], errorMessage);
       if (error) {
         acc.push({
