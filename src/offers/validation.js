@@ -30,7 +30,7 @@ const ValidateOptions = {
   }
 };
 
-const isRequire = (data, errMessage) => data ? null : `is required`;
+const isRequire = (data, errMessage) => data ? null : errMessage;
 const isLengthInRange = (min, max) => (data, errMessage) => data.length >= min && data.length < max ? null : errMessage;
 const isInArray = (array) => (data, errMessage) => array.includes(data) ? null : errMessage;
 const isInRange = (min, max) => (data, errMessage) => data >= min && data < max ? null : errMessage;

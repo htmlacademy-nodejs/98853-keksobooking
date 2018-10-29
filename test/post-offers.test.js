@@ -31,7 +31,6 @@ describe(`POST /api/offers`, () => {
   it(`send offer as multipart/form-data`, async () => {
     const response = await request(app).
       post(`/api/offers`).
-      field(`name`, sent.name).
       field(`title`, sent.title).
       field(`price`, sent.price).
       field(`type`, sent.type).
@@ -39,6 +38,7 @@ describe(`POST /api/offers`, () => {
       field(`checkout`, sent.checkout).
       field(`rooms`, sent.rooms).
       field(`address`, sent.address).
+      field(`name`, sent.name).
       set(`Accept`, `application/json`).
       set(`Content-Type`, `multipart/form-data`).
       expect(200).

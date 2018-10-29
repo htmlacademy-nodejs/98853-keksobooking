@@ -19,9 +19,9 @@ class ImageStore {
     return this._bucket;
   }
 
-  async get(filename) {
+  async get(id) {
     const bucket = await this.getBucket();
-    const results = await (bucket).find({filename}).toArray();
+    const results = await (bucket).find({id}).toArray();
     const entity = results[0];
     if (!entity) {
       return void 0;
@@ -29,10 +29,10 @@ class ImageStore {
     return {info: entity, stream: bucket.openDownloadStreamByName(filename)};
   }
 
-  async save(filename, stream) {
+  async save(id, stream) {
     const bucket = await this.getBucket();
     return new Promise((success, fail) => {
-      stream.pipe(bucket.openUploadStream(filename)).on(`error`, fail).on(`finish`, success);
+      stream.pipe(bucket.openUploadStream(id)).on(`error`, fail).on(`finish`, success);
     });
   }
 
