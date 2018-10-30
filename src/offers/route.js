@@ -73,18 +73,13 @@ offersRouter.get(`/:date/avatar`, asyncMiddleware(async (req, res) => {
   if (!offer) {
     throw new NotFoundError(`Объявлений с датой ${offerDate} не нашлось!`);
   }
-
-  const {info, stream, mimetype} = await offersRouter.imageStore.get(offer._id);
-
-  console.log(info);
-  console.log(mimetype);
-  console.log(stream);
-
-  if (!info) {
-    throw new NotFoundError(`Файл не найден!`);
+  const result = await offersRouter.imageStore.get(offer._id);
+  if (!result) {
+    throw new NotFoundError(`Аватар автора объявления с датой ${offerDate} не найден`);
   }
+  const {stream, info} = result;
 
-  res.header(`Content-Type`, mimetype);
+  res.header(`Content-Type`, `image/jpg`);
   res.header(`Content-Length`, info.length);
 
   res.on(`error`, (e) => console.error(e));
@@ -125,7 +120,7 @@ const saveAndSendData = asyncMiddleware(async (req, res, _next) => {
     await offersRouter.imageStore.save(insertedId, toStream(avatar.buffer));
   }
 
-  res.send(`Данные загружены успешно!`);
+  res.send(body);
 });
 
 offersRouter.post(``, jsonParser, upload.single(`avatar`), [dataValidation, setDataValue, saveAndSendData]);

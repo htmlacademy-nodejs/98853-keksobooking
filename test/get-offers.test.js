@@ -112,3 +112,16 @@ describe(`GET /api/offers/:date`, () => {
       expect(`404 Not Found Объявлений с датой 345638645873 не нашлось!`);
   });
 });
+
+describe(`GET /api/offers/:date/avatar`, () => {
+  it(`if avatar of author offer with date "1539441679957" is not found the server will return the correct error code`, async () => {
+    await request(app).
+      get(`/api/offers/1539441679957/avatar`).
+      set(`Accept`, `text/html`).
+      expect(404).
+      expect(`Content-Type`, `text/html; charset=utf-8`).
+      expect(`404 Not Found Аватар автора объявления с датой 1539441679957 не найден`);
+  });
+
+
+});

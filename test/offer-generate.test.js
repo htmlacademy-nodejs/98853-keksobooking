@@ -5,7 +5,7 @@ const {generateEntity} = require(`../src/generate/offer-generate.js`);
 const generatorOptions = require(`../src/data/generator-options.js`);
 
 const ONE_WEEK_INTERVAL_MS = generatorOptions.TIME_INTERVAL_LENGTH * 24 * 60 * 60 * 1000;
-const REG_EXP_FOR_URL = /^(ftp|http|https):\/\/[^ "]+$/;
+const REG_EXP_FOR_IMG = /\.(gif|jpg|jpeg|tiff|png)$/i;
 
 let data;
 
@@ -23,8 +23,8 @@ describe(`Generate object with offer's options`, () => {
     assert.equal(`string`, typeof data.author.avatar);
   });
 
-  it(`Avatar's url is a URL`, () => {
-    assert.equal(true, REG_EXP_FOR_URL.test(data.author.avatar));
+  it(`Avatar is a IMG`, () => {
+    assert.equal(true, REG_EXP_FOR_IMG.test(data.author.avatar));
   });
 
   it(`Price is a number`, () => {
