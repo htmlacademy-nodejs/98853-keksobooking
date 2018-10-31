@@ -3,9 +3,9 @@
 const assert = require(`assert`);
 const {generateEntity} = require(`../src/generate/offer-generate.js`);
 const generatorOptions = require(`../src/data/generator-options.js`);
-
+const {isImageName} = require(`../src/utils.js`);
 const ONE_WEEK_INTERVAL_MS = generatorOptions.TIME_INTERVAL_LENGTH * 24 * 60 * 60 * 1000;
-const REG_EXP_FOR_IMG = /\.(gif|jpg|jpeg|tiff|png)$/i;
+
 
 let data;
 
@@ -24,8 +24,7 @@ describe(`Generate object with offer's options`, () => {
   });
 
   it(`Avatar is a IMG`, () => {
-    console.log(data.author.avatar, `11111`);
-    assert.equal(true, REG_EXP_FOR_IMG.test(data.author.avatar));
+    assert.equal(true, isImageName(data.author.avatar));
   });
 
   it(`Price is a number`, () => {

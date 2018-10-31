@@ -9,8 +9,8 @@ const sent = {
   title: `Маленькая квартирка рядом с парком!!!!!!!!!!!!!!`,
   price: 30000,
   type: `flat`,
-  checkin: `19:00`,
-  checkout: `07:00`,
+  checkin: `12:00`,
+  checkout: `12:00`,
   rooms: 2,
   address: `471,545`,
   avatar: `keks.png`
@@ -25,8 +25,9 @@ describe(`POST /api/offers`, () => {
       set(`Content-Type`, `application/json`).
       expect(200).
       expect(`Content-Type`, /json/);
-    const offer = response.body;
-    assert.deepEqual(offer, Object.assign({}, sent, {location: {x: `471`, y: `545`}}));
+    const {body} = response;
+    assert.deepEqual(body.offer, {"title": sent.title, "address": sent.address, "type": sent.type, "price": sent.price, "checkin": sent.checkin, "checkout": sent.checkout, "rooms": sent.rooms});
+    assert.deepEqual(body.author, {"name": sent.name, "avatar": sent.avatar});
   });
 
   it(`send offer as multipart/form-data`, async () => {
@@ -44,8 +45,8 @@ describe(`POST /api/offers`, () => {
       set(`Content-Type`, `multipart/form-data`).
       expect(200).
       expect(`Content-Type`, /json/);
-    const offer = response.body;
-    assert.deepEqual(offer, Object.assign({}, sent, {location: {x: `471`, y: `545`}}));
+    const {body} = response;
+    assert.deepEqual(body.offer, {"title": sent.title, "address": sent.address, "type": sent.type, "price": sent.price, "checkin": sent.checkin, "checkout": sent.checkout, "rooms": sent.rooms});
   });
 
   it(`send offer with avatar as multipart/form-data`, async () => {
@@ -64,8 +65,29 @@ describe(`POST /api/offers`, () => {
       set(`Content-Type`, `multipart/form-data`).
       expect(200).
       expect(`Content-Type`, /json/);
-    const offer = response.body;
-    assert.deepEqual(offer, Object.assign({}, sent, {location: {x: `471`, y: `545`}}, {avatar: `keks.png`}));
+    const {body} = response;
+    assert.deepEqual(body.offer, {"title": sent.title, "address": sent.address, "type": sent.type, "price": sent.price, "checkin": sent.checkin, "checkout": sent.checkout, "rooms": sent.rooms});
+    assert.deepEqual(body.author, {"name": sent.name, "avatar": sent.avatar});
+  });
+
+  it(`send offer with avatar as multipart/form-data`, async () => {
+    const response = await request(app).
+      post(`/api/offers`).
+      field(`name`, sent.name).
+      field(`title`, sent.title).
+      field(`price`, sent.price).
+      field(`type`, sent.type).
+      field(`checkin`, sent.checkin).
+      field(`checkout`, sent.checkout).
+      field(`rooms`, sent.rooms).
+      field(`address`, sent.address).
+      attach(`images`, `test/fixtures/keks.png`).
+      set(`Accept`, `application/json`).
+      set(`Content-Type`, `multipart/form-data`).
+      expect(200).
+      expect(`Content-Type`, /json/);
+    const {body} = response;
+    assert.deepEqual(body.offer, {"title": sent.title, "address": sent.address, "type": sent.type, "price": sent.price, "checkin": sent.checkin, "checkout": sent.checkout, "rooms": sent.rooms, "preview": `keks.png`});
   });
 
 

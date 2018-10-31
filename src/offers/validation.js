@@ -60,6 +60,7 @@ const getInvalidValues = (original) => (data) => {
   return null;
 };
 
+
 const offersValidationSchema = {
   title: [isRequire, isLengthInRange(ValidateOptions.title.MIN_LENGTH, ValidateOptions.title.MAX_LENGTH)],
   type: [isRequire, isInArray(generatorOptions.TYPES)],
@@ -68,7 +69,7 @@ const offersValidationSchema = {
   checkout: [isRequire, isTimeFormat],
   rooms: [isRequire, isInRange(ValidateOptions.rooms.MIN, ValidateOptions.rooms.MAX)],
   address: [isRequire, isLengthInRange(ValidateOptions.address.MIN_LENGTH, ValidateOptions.address.MAX_LENGTH)],
-  features: [getInvalidValues(generatorOptions.FEATURES), isArrayOfUniqueValues],
+  features: [getInvalidValues(generatorOptions.FEATURES), isArrayOfUniqueValues]
 };
 
 let fields = Object.keys(offersValidationSchema);
@@ -87,7 +88,7 @@ const validate = (data) => {
     return acc;
   }, []);
 
-  if (errors.length > 0) {
+  if (errors.length) {
     throw new ValidationError(errors);
   }
   return data;

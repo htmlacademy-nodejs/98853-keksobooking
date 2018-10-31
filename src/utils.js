@@ -1,5 +1,9 @@
 'use strict';
 
+const REG_EXP_FOR_IMG = /\.(gif|jpg|jpeg|tiff|png)$/i;
+
+const isImageName = (imgName) => REG_EXP_FOR_IMG.test(imgName);
+
 const getRandomFromZero = (finiteNumber) => Math.floor(Math.random() * finiteNumber);
 
 const getRandomFromArr = (array) => array[getRandomFromZero(array.length)];
@@ -52,5 +56,6 @@ module.exports = {
   getDateInInterval,
   getRandomHash,
   isInteger,
-  getInvalidValue
+  getInvalidValue,
+  isImageName
 };
