@@ -6,7 +6,7 @@ const setupCollection = async () => {
   const dBase = await db;
 
   const collection = dBase.collection(`offers`);
-  collection.createIndex({title: 1});
+  collection.createIndex({date: -1});
   return collection;
 };
 
@@ -16,7 +16,6 @@ class OffersStore {
   }
 
   async getOffer(date) {
-    console.log(date);
     return (await this.collection).findOne({date});
   }
 
