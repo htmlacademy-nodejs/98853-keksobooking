@@ -4,18 +4,18 @@ const {
   getRandomFromArr,
   getRandomFromRange,
   getRandomSample,
-  mixArr
-  // getRandomHash
+  mixArr,
+  getRandomHash
   // getDateInInterval
 } = require(`../utils.js`);
 
 const generatorOptions = require(`../data/generator-options.js`);
 
-// const AVATAR_URL_BASE = `https://robohash.org`;
-// const LENGTH_OF_URL_HASH = 7;
+const AVATAR_URL_BASE = `https://robohash.org`;
+const LENGTH_OF_URL_HASH = 7;
 
 
-// const getAvatarUrl = () => `${AVATAR_URL_BASE}/${getRandomHash(LENGTH_OF_URL_HASH)}`;
+const getAvatarUrl = () => `${AVATAR_URL_BASE}/${getRandomHash(LENGTH_OF_URL_HASH)}.png`;
 
 const getRandomLocation = () => ({
   'x': getRandomFromRange(generatorOptions.MIN_X, generatorOptions.MAX_X),
@@ -26,7 +26,7 @@ const getRandomLocation = () => ({
 const generateEntity = () => ({
   author: {
     name: getRandomFromArr(generatorOptions.NAMES),
-    avatar: `keks.png` // getAvatarUrl()
+    avatar: getAvatarUrl()
   },
   offer: {
     title: getRandomFromArr(generatorOptions.TITLES),

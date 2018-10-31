@@ -24,6 +24,7 @@ describe(`Generate object with offer's options`, () => {
   });
 
   it(`Avatar is a IMG`, () => {
+    console.log(data.author.avatar, `11111`);
     assert.equal(true, REG_EXP_FOR_IMG.test(data.author.avatar));
   });
 

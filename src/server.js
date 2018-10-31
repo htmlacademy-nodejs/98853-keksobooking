@@ -30,8 +30,7 @@ const generateJSONError = ({name: error, message: errorMessage}) => {
 
 const generateStringError = (err) => `${err.code} ${err.name} ${err.message}`;
 
-// eslint-disable-next-line no-unused-vars
-const ERROR_HANDLER = (err, req, res, next) => {
+const ERROR_HANDLER = (err, req, res, _next) => {
   if (err) {
     const acceptElements = req.headers.accept.split(`,`);
     const isJSONSupported = acceptElements.includes(`application/json`);

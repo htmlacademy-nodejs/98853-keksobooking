@@ -111,11 +111,20 @@ const dataValidation = (req, res, _next) => {
 
 const setDataValue = (req, res, _next) => {
   const {body} = req;
-  if (!body.name) {
-    body.name = getRandomFromArr(generatorOptions.NAMES);
-  }
+  const data = {};
   const coordinates = body.address.split(`,`);
-  body.location = {x: coordinates[0], y: coordinates[1]};
+  data.author = {
+    name: body.name || getRandomFromArr(generatorOptions.NAMES),
+  };
+  if (body.avatar) {
+    data.author.avatar = body.avatar.name;
+  }
+  data.offer = body;
+  data.location = {x: coordinates[0], y: coordinates[1]};
+  data.date = Date.now();
+  delete data.offer.avatar;
+  delete data.offer.location;
+  req.body = data;
   _next();
 };
 

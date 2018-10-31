@@ -12,7 +12,8 @@ const sent = {
   checkin: `19:00`,
   checkout: `07:00`,
   rooms: 2,
-  address: `471,545`
+  address: `471,545`,
+  avatar: `keks.png`
 };
 
 describe(`POST /api/offers`, () => {
@@ -64,7 +65,7 @@ describe(`POST /api/offers`, () => {
       expect(200).
       expect(`Content-Type`, /json/);
     const offer = response.body;
-    assert.deepEqual(offer, Object.assign({}, sent, {location: {x: `471`, y: `545`}}, {avatar: {name: `keks.png`}}));
+    assert.deepEqual(offer, Object.assign({}, sent, {location: {x: `471`, y: `545`}}, {avatar: `keks.png`}));
   });
 
 
