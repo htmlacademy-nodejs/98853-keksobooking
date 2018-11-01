@@ -1,10 +1,9 @@
 'use strict';
 
-const db = require(`../database/db`);
+const startDataBase = require(`../database/db`);
 
 const setupCollection = async () => {
-  const dBase = await db;
-
+  const dBase = await startDataBase();
   const collection = dBase.collection(`offers`);
   collection.createIndex({date: -1});
   return collection;
@@ -16,7 +15,7 @@ class OffersStore {
   }
 
   async getOffer(date) {
-    return (await this.collection).findOne({date});
+    return (await this.collection).findOne({date: Number(date)});
   }
 
   async getAllOffers() {
@@ -29,5 +28,5 @@ class OffersStore {
 
 }
 
-module.exports = new OffersStore(setupCollection().
+module.exports = () => new OffersStore(setupCollection().
   catch((e) => console.error(`Failed to set up "offers"-collection`, e)));

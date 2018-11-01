@@ -2,8 +2,8 @@
 
 const request = require(`supertest`);
 const assert = require(`assert`);
-const {app} = require(`../src/server.js`);
-
+const {startServer} = require(`../src/server.js`);
+const app = startServer();
 const DEFAULT_LIMIT_VALUE = 20;
 
 const offersStoreMock = require(`./mock/offers-store-mock`);

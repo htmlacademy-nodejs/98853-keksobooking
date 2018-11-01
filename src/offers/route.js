@@ -71,15 +71,15 @@ offersRouter.get(``, [skipValidationFn, limitValidationFn, asyncMiddleware(async
 })
 ]);
 
-/*const dateValidation = (req, res, _next) => {
+const dateValidation = (req, res, _next) => {
   const offerDate = req.params.date;
-  if (!isInteger(Number(offerDate))) {
+  if (isNaN(offerDate)) {
     throw new BadRequest(`Невереный формат даты`);
   }
   _next();
-};*/
+};
 
-/*const getOfferByDate = async (req) => {
+const getOfferByDate = async (req) => {
   const offerDate = req.params.date;
   const offer = await offersRouter.offerStore.getOffer(offerDate);
   console.log(offer);
@@ -87,20 +87,15 @@ offersRouter.get(``, [skipValidationFn, limitValidationFn, asyncMiddleware(async
     throw new NotFoundError(`Объявлений с датой ${offerDate} не нашлось!`);
   }
   return offer;
-};*/
+};
 
-offersRouter.get(`/:date`, asyncMiddleware(async (req, res) => {
-  const offerDate = req.params.date;
-  const offer = await offersRouter.offerStore.getOffer(offerDate);
-  console.log(offer);
-  if (!offer) {
-    throw new NotFoundError(`Объявлений с датой ${offerDate} не нашлось!`);
-  }
+offersRouter.get(`/:date`, [dateValidation, asyncMiddleware(async (req, res) => {
+  const offer = await getOfferByDate(req);
   res.send(offer);
-}));
+})]);
 
 
-offersRouter.get(`/:date/avatar`, asyncMiddleware(async (req, res) => {
+offersRouter.get(`/:date/avatar`, [dateValidation, asyncMiddleware(async (req, res) => {
   const offerDate = req.params.date;
   const offer = await offersRouter.offerStore.getOffer(offerDate);
   console.log(offer);
@@ -124,7 +119,7 @@ offersRouter.get(`/:date/avatar`, asyncMiddleware(async (req, res) => {
   stream.on(`error`, (e) => console.error(e));
   stream.on(`end`, () => res.end());
   stream.pipe(res);
-}));
+})]);
 
 
 const dataValidation = (req, res, _next) => {
