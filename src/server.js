@@ -52,5 +52,7 @@ const startServer = (port = DEFAULT_PORT) => {
 
 module.exports = {
   startServer,
-  app
+  app,
+  ERROR_HANDLER,
+  NOT_FOUND_HANDLER
 };

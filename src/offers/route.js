@@ -11,7 +11,7 @@ const generatorOptions = require(`../data/generator-options.js`);
 const {getRandomFromArr} = require(`../utils.js`);
 const toStream = require(`buffer-to-stream`);
 
-const MIMETYPES = [`image/png`, `image/jpg`];
+const IMAGE_MIMETYPES = [`image/png`, `image/jpg`];
 // eslint-disable-next-line new-cap
 const offersRouter = Router();
 const upload = multer({storage: multer.memoryStorage()});
@@ -20,7 +20,7 @@ const isImageMimeType = (files) => {
   const array = Array.isArray(files) ? files : [files];
   const errors = [];
   array.forEach((it) => {
-    if (!MIMETYPES.includes(it.mimetype)) {
+    if (!IMAGE_MIMETYPES.includes(it.mimetype)) {
       errors.push({
         fieldName: it.fieldname,
         errorMessage: `Недопустимый формат файла ${it.originalname}`
@@ -82,7 +82,6 @@ const dateValidation = (req, res, _next) => {
 const getOfferByDate = async (req) => {
   const offerDate = req.params.date;
   const offer = await offersRouter.offerStore.getOffer(offerDate);
-  console.log(offer);
   if (!offer) {
     throw new NotFoundError(`Объявлений с датой ${offerDate} не нашлось!`);
   }
@@ -98,7 +97,6 @@ offersRouter.get(`/:date`, [dateValidation, asyncMiddleware(async (req, res) => 
 offersRouter.get(`/:date/avatar`, [dateValidation, asyncMiddleware(async (req, res) => {
   const offerDate = req.params.date;
   const offer = await offersRouter.offerStore.getOffer(offerDate);
-  console.log(offer);
   if (!offer) {
     throw new NotFoundError(`Объявлений с датой ${offerDate} не нашлось!`);
   }
@@ -124,15 +122,15 @@ offersRouter.get(`/:date/avatar`, [dateValidation, asyncMiddleware(async (req, r
 
 const dataValidation = (req, res, _next) => {
   if (req.files && Object.keys(req.files).length) {
-    const images = req.files[`images`];
+    const photos = req.files[`photos`];
     if (req.files[`avatar`]) {
       const avatar = req.files[`avatar`][0];
       isImageMimeType(avatar);
       req.body.avatar = avatar.originalname;
     }
-    if (images) {
-      isImageMimeType(images);
-      req.body.preview = images[0].originalname;
+    if (photos) {
+      isImageMimeType(photos);
+      req.body.preview = photos[0].originalname;
     }
   }
   validate(req.body);
@@ -165,20 +163,26 @@ const saveAndSendData = asyncMiddleware(async (req, res, _next) => {
   const result = await offersRouter.offerStore.save(body);
   const {insertedId} = result;
   if (req.files && Object.keys(req.files).length) {
-    const images = req.files[`images`];
+    const photos = req.files[`photos`];
     if (req.files[`avatar`]) {
       const avatar = req.files[`avatar`][0];
       await offersRouter.imageStore.save(insertedId, toStream(avatar.buffer));
     }
-    if (images) {
-      images.forEach(async (it) => await offersRouter.imageStore.save(insertedId, toStream(it.buffer)));
+    if (photos) {
+      photos.forEach(async (it) => await offersRouter.imageStore.save(insertedId, toStream(it.buffer)));
     }
   }
   res.send(body);
 });
 
-let cpUpload = upload.fields([{name: `avatar`, maxCount: 1}, {name: `images`, maxCount: 8}]);
-offersRouter.post(``, jsonParser, cpUpload, [dataValidation, formatData, saveAndSendData]);
+
+offersRouter.post(``,
+    jsonParser,
+    [upload.fields([{name: `avatar`, maxCount: 1}, {name: `photos`, maxCount: 8}]),
+      dataValidation,
+      formatData,
+      saveAndSendData]
+);
 
 
 module.exports = (offerStore, imageStore) => {

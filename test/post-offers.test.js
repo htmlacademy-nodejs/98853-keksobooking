@@ -2,7 +2,16 @@
 
 const request = require(`supertest`);
 const assert = require(`assert`);
-const {app} = require(`../src/server.js`);
+const express = require(`express`);
+const {ERROR_HANDLER} = require(`../src/server.js`);
+const offersStoreMock = require(`./mock/offers-store-mock`);
+const imagesStoreMock = require(`./mock/images-store-mock`);
+const offersRouter = require(`../src/offers/route.js`)(offersStoreMock, imagesStoreMock);
+
+const app = express();
+
+app.use(`/api/offers`, offersRouter);
+app.use(ERROR_HANDLER);
 
 const sent = {
   name: `Petr`,
@@ -81,13 +90,14 @@ describe(`POST /api/offers`, () => {
       field(`checkout`, sent.checkout).
       field(`rooms`, sent.rooms).
       field(`address`, sent.address).
-      attach(`images`, `test/fixtures/keks.png`).
+      attach(`avatar`, `test/fixtures/keks.png`).
       set(`Accept`, `application/json`).
       set(`Content-Type`, `multipart/form-data`).
       expect(200).
       expect(`Content-Type`, /json/);
     const {body} = response;
-    assert.deepEqual(body.offer, {"title": sent.title, "address": sent.address, "type": sent.type, "price": sent.price, "checkin": sent.checkin, "checkout": sent.checkout, "rooms": sent.rooms, "preview": `keks.png`});
+    assert.deepEqual(body.offer, {"title": sent.title, "address": sent.address, "type": sent.type, "price": sent.price, "checkin": sent.checkin, "checkout": sent.checkout, "rooms": sent.rooms});
+    assert.deepEqual(body.author, {"name": sent.name, "avatar": sent.avatar});
   });
 
 

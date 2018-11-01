@@ -30,7 +30,7 @@ const ValidateOptions = {
   }
 };
 
-const isRequire = (data) => data ? null : `is required`;
+const isRequired = (data) => data ? null : `is required`;
 const isLengthInRange = (min, max) => (data) => data.length >= min && data.length < max ? null : `Введите значение от ${min} до ${max} символов`;
 const isInArray = (array) => (data) => array.includes(data) ? null : `Введите одно из следующий значений: ${array.join(`, `)}`;
 const isInRange = (min, max) => (data) => data >= min && data < max ? null : `Введите значение от ${min} до ${max}`;
@@ -62,13 +62,13 @@ const getInvalidValues = (original) => (data) => {
 
 
 const offersValidationSchema = {
-  title: [isRequire, isLengthInRange(ValidateOptions.title.MIN_LENGTH, ValidateOptions.title.MAX_LENGTH)],
-  type: [isRequire, isInArray(generatorOptions.TYPES)],
-  price: [isRequire, isInRange(ValidateOptions.price.MIN, ValidateOptions.price.MAX)],
-  checkin: [isRequire, isTimeFormat],
-  checkout: [isRequire, isTimeFormat],
-  rooms: [isRequire, isInRange(ValidateOptions.rooms.MIN, ValidateOptions.rooms.MAX)],
-  address: [isRequire, isLengthInRange(ValidateOptions.address.MIN_LENGTH, ValidateOptions.address.MAX_LENGTH)],
+  title: [isRequired, isLengthInRange(ValidateOptions.title.MIN_LENGTH, ValidateOptions.title.MAX_LENGTH)],
+  type: [isRequired, isInArray(generatorOptions.TYPES)],
+  price: [isRequired, isInRange(ValidateOptions.price.MIN, ValidateOptions.price.MAX)],
+  checkin: [isRequired, isTimeFormat],
+  checkout: [isRequired, isTimeFormat],
+  rooms: [isRequired, isInRange(ValidateOptions.rooms.MIN, ValidateOptions.rooms.MAX)],
+  address: [isRequired, isLengthInRange(ValidateOptions.address.MIN_LENGTH, ValidateOptions.address.MAX_LENGTH)],
   features: [getInvalidValues(generatorOptions.FEATURES), isArrayOfUniqueValues]
 };
 
