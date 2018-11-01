@@ -15,7 +15,7 @@ const AVATAR_URL_BASE = `https://robohash.org`;
 const LENGTH_OF_URL_HASH = 7;
 
 
-const getAvatarUrl = () => `${AVATAR_URL_BASE}/${getRandomHash(LENGTH_OF_URL_HASH)}`;
+const getAvatarUrl = () => `${AVATAR_URL_BASE}/${getRandomHash(LENGTH_OF_URL_HASH)}.png`;
 
 const getRandomLocation = () => ({
   'x': getRandomFromRange(generatorOptions.MIN_X, generatorOptions.MAX_X),

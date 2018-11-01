@@ -2,11 +2,19 @@
 
 const request = require(`supertest`);
 const assert = require(`assert`);
-const {app} = require(`../src/server.js`);
-
+const express = require(`express`);
+const {ERROR_HANDLER, NOT_FOUND_HANDLER} = require(`../src/server.js`);
 const DEFAULT_LIMIT_VALUE = 20;
 
-// const app = startServer();
+const offersStoreMock = require(`./mock/offers-store-mock`);
+const imagesStoreMock = require(`./mock/images-store-mock`);
+const offersRouter = require(`../src/offers/route.js`)(offersStoreMock, imagesStoreMock);
+
+const app = express();
+
+app.use(`/api/offers`, offersRouter);
+app.use(NOT_FOUND_HANDLER);
+app.use(ERROR_HANDLER);
 
 describe(`GET /api/offers`, () => {
   it(`respond with JSON`, async () => {
@@ -16,7 +24,7 @@ describe(`GET /api/offers`, () => {
       expect(200).
       expect(`Content-Type`, /json/).
       then((res) => {
-        const offers = res.body;
+        const offers = res.body.data;
         assert.equal(offers.length, DEFAULT_LIMIT_VALUE);
       });
   });
@@ -37,7 +45,7 @@ describe(`GET /api/offers`, () => {
       expect(200).
       expect(`Content-Type`, /json/).
       then((res) => {
-        const offers = res.body;
+        const offers = res.body.data;
         assert.equal(offers.length, 10);
       });
   });
@@ -67,8 +75,8 @@ describe(`GET /api/offers`, () => {
       expect(200).
       expect(`Content-Type`, /json/).
       then((res) => {
-        const offers = res.body;
-        assert.equal(offers.length, 17);
+        const offers = res.body.data;
+        assert.equal(offers.length, 20);
       });
   });
 
@@ -79,7 +87,7 @@ describe(`GET /api/offers`, () => {
       expect(200).
       expect(`Content-Type`, /json/).
       then((res) => {
-        const offers = res.body;
+        const offers = res.body.data;
         assert.equal(offers.length, 3);
       });
   });
@@ -106,5 +114,16 @@ describe(`GET /api/offers/:date`, () => {
       expect(404).
       expect(`Content-Type`, `text/html; charset=utf-8`).
       expect(`404 Not Found Объявлений с датой 345638645873 не нашлось!`);
+  });
+});
+
+describe(`GET /api/offers/:date/avatar`, () => {
+  it(`if avatar of author offer with date "1539441679957" is not found the server will return the correct error code`, async () => {
+    await request(app).
+      get(`/api/offers/1539441679957/avatar`).
+      set(`Accept`, `text/html`).
+      expect(404).
+      expect(`Content-Type`, `text/html; charset=utf-8`).
+      expect(`404 Not Found Аватар автора объявления с датой 1539441679957 не найден`);
   });
 });
