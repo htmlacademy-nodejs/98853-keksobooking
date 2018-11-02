@@ -31,12 +31,12 @@ const generateStringError = (err) => `${err.code} ${err.name} ${err.message}`;
 
 const ERROR_HANDLER = (err, req, res, _next) => {
   if (err) {
-    const acceptElements = req.headers.accept.split(`,`);
-    const isJSONSupported = acceptElements.includes(`application/json`);
+    //const acceptElements = req.headers.accept.split(`,`);
+    const isJSONSupported = true // acceptElements.includes(`application/json`);
     const contentType = isJSONSupported ? `application/json; charset=UTF-8` : `text/html; charset=UTF-8`;
     res.setHeader(`Content-Type`, contentType);
     console.error(err);
-    res.status(err.code || 500).send(isJSONSupported ? generateJSONError(err) : generateStringError(err));
+    res.status(err.code || 500).send(generateJSONError(err));
   }
 };
 

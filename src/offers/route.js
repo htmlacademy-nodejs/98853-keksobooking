@@ -64,9 +64,9 @@ offersRouter.get(``, [skipValidationFn, limitValidationFn, asyncMiddleware(async
   const {skip, limit} = req.query;
   const offers = await offersRouter.offerStore.getAllOffers();
   const filteredOffers = await filterOffers(offers, skip, limit);
-  if (!filteredOffers.data.length) {
+  /*if (!filteredOffers.data.length) {
     throw new BadRequest(`Неверное значение параметра skip или limit!`);
-  }
+  }*/
   res.send(filteredOffers);
 })
 ]);
@@ -122,7 +122,7 @@ offersRouter.get(`/:date/avatar`, [dateValidation, asyncMiddleware(async (req, r
 
 const dataValidation = (req, res, _next) => {
   if (req.files && Object.keys(req.files).length) {
-    const photos = req.files[`photos`];
+    const photos = req.files[`preview`];
     if (req.files[`avatar`]) {
       const avatar = req.files[`avatar`][0];
       isImageMimeType(avatar);
@@ -130,7 +130,8 @@ const dataValidation = (req, res, _next) => {
     }
     if (photos) {
       isImageMimeType(photos);
-      req.body.preview = photos[0].originalname;
+      req.body.photos = [];
+      photos.forEach((it) => req.body.photos.push(it.originalname));
     }
   }
   validate(req.body);
@@ -163,7 +164,7 @@ const saveAndSendData = asyncMiddleware(async (req, res, _next) => {
   const result = await offersRouter.offerStore.save(body);
   const {insertedId} = result;
   if (req.files && Object.keys(req.files).length) {
-    const photos = req.files[`photos`];
+    const photos = req.files[`preview`];
     if (req.files[`avatar`]) {
       const avatar = req.files[`avatar`][0];
       await offersRouter.imageStore.save(insertedId, toStream(avatar.buffer));
@@ -178,7 +179,7 @@ const saveAndSendData = asyncMiddleware(async (req, res, _next) => {
 
 offersRouter.post(``,
     jsonParser,
-    [upload.fields([{name: `avatar`, maxCount: 1}, {name: `photos`, maxCount: 8}]),
+    [upload.fields([{name: `avatar`, maxCount: 1}, {name: `preview`, maxCount: 8}]),
       dataValidation,
       formatData,
       saveAndSendData]
