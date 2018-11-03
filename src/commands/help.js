@@ -5,8 +5,9 @@ const author = require(`./author.js`);
 const description = require(`./description.js`);
 const license = require(`./license.js`);
 const server = require(`./server.js`);
+const fill = require(`./fill.js`);
 
-const commands = [version, author, description, license, server];
+const commands = [version, author, description, license, server, fill];
 
 module.exports = {
   name: `help`,

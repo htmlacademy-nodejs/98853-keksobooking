@@ -51,7 +51,6 @@ const isArrayOfUniqueValues = (data) => {
   return null;
 };
 
-
 const getInvalidValues = (original) => (data) => {
   if (data && data.length) {
     const invalidValues = getInvalidValue(data, original);
@@ -87,7 +86,6 @@ const validate = (data) => {
     });
     return acc;
   }, []);
-
   if (errors.length) {
     throw new ValidationError(errors);
   }

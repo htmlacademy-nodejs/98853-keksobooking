@@ -8,7 +8,7 @@ const DEFAULT_LIMIT_VALUE = 20;
 
 const offersStoreMock = require(`./mock/offers-store-mock`);
 const imagesStoreMock = require(`./mock/images-store-mock`);
-const offersRouter = require(`../src/offers/route.js`)(offersStoreMock, imagesStoreMock);
+const offersRouter = require(`../src/offers/routes/main.js`)(offersStoreMock, imagesStoreMock);
 
 const app = express();
 

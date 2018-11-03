@@ -2,21 +2,19 @@
 
 const express = require(`express`);
 const app = express();
+const logger = require(`./logger`);
+
 const getOfferStore = require(`./offers/store.js`);
 const getImageStore = require(`./images/store.js`);
-const offersRouter = require(`./offers/route.js`);
-const {join} = require(`path`);
-const DIR_NAME_WITH_STATIC = `static`;
-const basePath = join(__dirname, `..`, DIR_NAME_WITH_STATIC);
+const offersRouter = require(`./offers/routes/main.js`);
 
 const DEFAULT_PORT = 3000;
 const DEFAULT_HOST = `localhost`;
+const DIR_NAME_WITH_STATIC = `static`;
+
+const basePath = require(`path`).join(__dirname, `..`, DIR_NAME_WITH_STATIC);
 
 const {SERVER_PORT = DEFAULT_PORT, SERVER_HOST = DEFAULT_HOST} = process.env;
-
-const NOT_FOUND_HANDLER = (req, res) => {
-  res.status(404).send(`Такой страницы не существует!`);
-};
 
 const generateJSONError = ({name: error, message: errorMessage}) => {
   let errorObj = {
@@ -29,18 +27,30 @@ const generateJSONError = ({name: error, message: errorMessage}) => {
 
 const generateStringError = (err) => `${err.code} ${err.name} ${err.message}`;
 
+
+const NOT_FOUND_HANDLER = (req, res) => {
+  res.status(404).send(`Такой страницы не существует!`);
+};
+
 const ERROR_HANDLER = (err, req, res, _next) => {
   if (err) {
     const acceptElements = req.headers.accept.split(`,`);
     const isJSONSupported = acceptElements.includes(`application/json`);
     const contentType = isJSONSupported ? `application/json; charset=UTF-8` : `text/html; charset=UTF-8`;
     res.setHeader(`Content-Type`, contentType);
-    console.error(generateJSONError(err));
+    logger.error(generateJSONError(err));
     res.status(err.code || 500).send(isJSONSupported ? generateJSONError(err) : generateStringError(err));
   }
 };
 
+const ALLOW_CORS = (req, res, next) => {
+  res.header(`Access-Control-Allow-Origin`, `*`);
+  res.header(`Access-Control-Allow-Headers`, `Origin, X-Requested-With, Content-Type, Accept`);
+  next();
+};
+
 app.use(express.static(basePath));
+app.use(ALLOW_CORS);
 
 const startServer = (port = DEFAULT_PORT) => {
   const offerStore = getOfferStore();
@@ -49,7 +59,6 @@ const startServer = (port = DEFAULT_PORT) => {
   app.use(NOT_FOUND_HANDLER);
   app.use(ERROR_HANDLER);
   app.listen(port, () => console.log(`Server starting... Go to http://${SERVER_HOST}:${SERVER_PORT}`));
-  return app;
 };
 
 module.exports = {

@@ -8,10 +8,11 @@ const author = require(`./commands/author.js`);
 const description = require(`./commands/description.js`);
 const license = require(`./commands/license.js`);
 const server = require(`./commands/server.js`);
+const fill = require(`./commands/fill.js`);
 const {executeGeneration} = require(`./generate/generate.js`);
 
 
-const commands = [help, version, author, description, license, server];
+const commands = [help, version, author, description, license, server, fill];
 const init = (command) => {
   if (command) {
     const match = commands.find((elem) => `--${elem.name}` === command);

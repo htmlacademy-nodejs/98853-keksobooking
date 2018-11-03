@@ -5,14 +5,20 @@ const {
   getRandomFromRange,
   getRandomSample,
   mixArr,
-  getRandomHash
-  // getDateInInterval
+  getRandomHash,
+  getDateInInterval
 } = require(`../utils.js`);
 
 const generatorOptions = require(`../data/generator-options.js`);
 
+
+const getOfferStore = require(`../offers/store.js`);
+const getImageStore = require(`../images/store.js`);
+const offersRouter = require(`../offers/routes/main.js`);
+
 const AVATAR_URL_BASE = `https://robohash.org`;
 const LENGTH_OF_URL_HASH = 7;
+const COUNT_OF_TEST_OFFERS = 50;
 
 
 const getAvatarUrl = () => `${AVATAR_URL_BASE}/${getRandomHash(LENGTH_OF_URL_HASH)}.png`;
@@ -45,7 +51,7 @@ const generateEntity = () => ({
     x: getRandomLocation().x,
     y: getRandomLocation().y
   },
-  date: 1541231052501 // getDateInInterval(generatorOptions.TIME_INTERVAL_LENGTH)
+  date: getDateInInterval(generatorOptions.TIME_INTERVAL_LENGTH)
 });
 
 const getOffers = (count) => {
@@ -57,7 +63,16 @@ const getOffers = (count) => {
   return result;
 };
 
+const fillDataBase = async () => {
+  const testOffers = getOffers(COUNT_OF_TEST_OFFERS);
+  const offerStore = getOfferStore();
+  const imageStore = getImageStore();
+  await offersRouter(offerStore, imageStore).offerStore.saveMany(testOffers);
+  console.log(`Тестовые данные успешно загруженны в базу данных!`);
+};
+
 module.exports = {
   generateEntity,
-  getOffers
+  getOffers,
+  fillDataBase
 };
