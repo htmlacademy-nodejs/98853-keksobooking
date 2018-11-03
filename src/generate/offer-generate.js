@@ -45,7 +45,7 @@ const generateEntity = () => ({
     x: getRandomLocation().x,
     y: getRandomLocation().y
   },
-  date: 1539441679957 // getDateInInterval(generatorOptions.TIME_INTERVAL_LENGTH)
+  date: 1541231052501 // getDateInInterval(generatorOptions.TIME_INTERVAL_LENGTH)
 });
 
 const getOffers = (count) => {

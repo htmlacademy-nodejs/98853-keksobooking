@@ -11,7 +11,7 @@ const generatorOptions = require(`../data/generator-options.js`);
 const {getRandomFromArr} = require(`../utils.js`);
 const toStream = require(`buffer-to-stream`);
 
-const IMAGE_MIMETYPES = [`image/png`, `image/jpg`];
+const IMAGE_MIMETYPES = [`image/png`, `image/jpg`, `image/jpeg`, `image/gif`];
 // eslint-disable-next-line new-cap
 const offersRouter = Router();
 const upload = multer({storage: multer.memoryStorage()});
@@ -64,9 +64,9 @@ offersRouter.get(``, [skipValidationFn, limitValidationFn, asyncMiddleware(async
   const {skip, limit} = req.query;
   const offers = await offersRouter.offerStore.getAllOffers();
   const filteredOffers = await filterOffers(offers, skip, limit);
-  /*if (!filteredOffers.data.length) {
-    throw new BadRequest(`Неверное значение параметра skip или limit!`);
-  }*/
+  if (!filteredOffers.data.length) {
+    throw new BadRequest(`Список объявлений пуст!`);
+  }
   res.send(filteredOffers);
 })
 ]);
@@ -83,7 +83,7 @@ const getOfferByDate = async (req) => {
   const offerDate = req.params.date;
   const offer = await offersRouter.offerStore.getOffer(offerDate);
   if (!offer) {
-    throw new NotFoundError(`Объявлений с датой ${offerDate} не нашлось!`);
+    throw new BadRequest(`Объявлений с датой ${offerDate} не нашлось!`);
   }
   return offer;
 };
