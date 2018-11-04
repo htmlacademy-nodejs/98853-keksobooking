@@ -2,9 +2,9 @@
 
 const assert = require(`assert`);
 const {generateEntity} = require(`../src/generate/offer-generate.js`);
-const generatorOptions = require(`../src/data/generator-options.js`);
+const {GeneratorOptions} = require(`../src/data/generator-options.js`);
 const {isImageName} = require(`../src/utils.js`);
-const ONE_WEEK_INTERVAL_MS = generatorOptions.TIME_INTERVAL_LENGTH * 24 * 60 * 60 * 1000;
+const ONE_WEEK_INTERVAL_MS = GeneratorOptions.TIME_INTERVAL_LENGTH * 24 * 60 * 60 * 1000;
 
 
 let data;
@@ -32,8 +32,8 @@ describe(`Generate object with offer's options`, () => {
   });
 
   it(`Price > 1000 and < 1000000`, () => {
-    assert.equal(true, data.offer.price > generatorOptions.MIN_PRICE);
-    assert.equal(true, data.offer.price < generatorOptions.MAX_PRICE);
+    assert.equal(true, data.offer.price > GeneratorOptions.MIN_PRICE);
+    assert.equal(true, data.offer.price < GeneratorOptions.MAX_PRICE);
   });
 
   it(`Type is a string`, () => {
@@ -41,7 +41,7 @@ describe(`Generate object with offer's options`, () => {
   });
 
   it(`Type equal flat, palace, house or bungalo`, () => {
-    assert.notEqual(-1, generatorOptions.TYPES.indexOf(data.offer.type));
+    assert.notEqual(-1, GeneratorOptions.TYPES.indexOf(data.offer.type));
   });
 
   it(`Features is a array of the strings`, () => {
@@ -77,8 +77,8 @@ describe(`Generate object with offer's options`, () => {
   });
 
   it(`Count of rooms >= 1 and <= 5`, () => {
-    assert.equal(true, data.offer.rooms >= generatorOptions.MIN_ROOMS_COUNT);
-    assert.equal(true, data.offer.rooms <= generatorOptions.MAX_ROOMS_COUNT);
+    assert.equal(true, data.offer.rooms >= GeneratorOptions.MIN_ROOMS_COUNT);
+    assert.equal(true, data.offer.rooms <= GeneratorOptions.MAX_ROOMS_COUNT);
   });
 
   it(`Guests is a number`, () => {
@@ -86,8 +86,8 @@ describe(`Generate object with offer's options`, () => {
   });
 
   it(`Count of guests >= 1 and <= 5`, () => {
-    assert.equal(true, data.offer.guests >= generatorOptions.MIN_ROOMS_COUNT);
-    assert.equal(true, data.offer.guests <= generatorOptions.MAX_ROOMS_COUNT);
+    assert.equal(true, data.offer.guests >= GeneratorOptions.MIN_ROOMS_COUNT);
+    assert.equal(true, data.offer.guests <= GeneratorOptions.MAX_ROOMS_COUNT);
   });
 
   it(`Checkin is a string`, () => {
@@ -95,7 +95,7 @@ describe(`Generate object with offer's options`, () => {
   });
 
   it(`Checkin equal 12:00, 13:00 or 14:00`, () => {
-    assert.notEqual(-1, generatorOptions.CHECKINS.indexOf(data.offer.checkin));
+    assert.notEqual(-1, GeneratorOptions.CHECKINS.indexOf(data.offer.checkin));
   });
 
   it(`Checkout is a string`, () => {
@@ -103,7 +103,7 @@ describe(`Generate object with offer's options`, () => {
   });
 
   it(`Checkout equal 12:00, 13:00 or 14:00`, () => {
-    assert.notEqual(-1, generatorOptions.CHECKOUTS.indexOf(data.offer.checkout));
+    assert.notEqual(-1, GeneratorOptions.CHECKOUTS.indexOf(data.offer.checkout));
   });
 
   it(`Location.x and location.y is a numbers`, () => {
@@ -112,13 +112,13 @@ describe(`Generate object with offer's options`, () => {
   });
 
   it(`Location.x is a random number > 300 and < 900`, () => {
-    assert.equal(true, data.location.x >= generatorOptions.MIN_X);
-    assert.equal(true, data.location.x <= generatorOptions.MAX_X);
+    assert.equal(true, data.location.x >= GeneratorOptions.MIN_X);
+    assert.equal(true, data.location.x <= GeneratorOptions.MAX_X);
   });
 
   it(`Location.y is a random number > 150 and < 500`, () => {
-    assert.equal(true, data.location.y >= generatorOptions.MIN_Y);
-    assert.equal(true, data.location.y <= generatorOptions.MAX_Y);
+    assert.equal(true, data.location.y >= GeneratorOptions.MIN_Y);
+    assert.equal(true, data.location.y <= GeneratorOptions.MAX_Y);
   });
 
 });

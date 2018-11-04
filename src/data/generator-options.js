@@ -1,6 +1,6 @@
 'use strict';
 
-const generatorOptions = {
+const GeneratorOptions = {
   NAMES: [`Keks`,
     `Pavel`,
     `Nikolay`,
@@ -33,7 +33,9 @@ const generatorOptions = {
   MAX_X: 900,
   MIN_Y: 150,
   MAX_Y: 500,
-  TIME_INTERVAL_LENGTH: 20
+  TIME_INTERVAL_LENGTH: 7
 };
 
-module.exports = generatorOptions;
+module.exports = {
+  GeneratorOptions
+};

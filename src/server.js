@@ -38,7 +38,7 @@ const ERROR_HANDLER = (err, req, res, _next) => {
     const isJSONSupported = acceptElements.includes(`application/json`);
     const contentType = isJSONSupported ? `application/json; charset=UTF-8` : `text/html; charset=UTF-8`;
     res.setHeader(`Content-Type`, contentType);
-    logger.error(generateJSONError(err));
+    logger.error(err);
     res.status(err.code || 500).send(isJSONSupported ? generateJSONError(err) : generateStringError(err));
   }
 };
@@ -63,7 +63,6 @@ const startServer = (port = DEFAULT_PORT) => {
 
 module.exports = {
   startServer,
-  app,
   ERROR_HANDLER,
   NOT_FOUND_HANDLER
 };

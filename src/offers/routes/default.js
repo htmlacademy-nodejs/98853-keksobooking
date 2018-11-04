@@ -3,7 +3,7 @@ const {asyncMiddleware, getRandomFromArr, isInteger} = require(`../../utils.js`)
 const jsonParser = require(`express`).json();
 const multer = require(`multer`);
 const upload = multer({storage: multer.memoryStorage()});
-const generatorOptions = require(`../../data/generator-options.js`);
+const {GeneratorOptions} = require(`../../data/generator-options.js`);
 const {validate} = require(`../validation.js`);
 const {BadRequest, ValidationError} = require(`../../errors.js`);
 const toStream = require(`buffer-to-stream`);
@@ -66,7 +66,7 @@ const dataValidation = (req, res, _next) => {
 const formatData = (req, res, _next) => {
   const {body} = req;
   const data = {};
-  const name = body.name || getRandomFromArr(generatorOptions.NAMES);
+  const name = body.name || getRandomFromArr(GeneratorOptions.NAMES);
   const coordinates = body.address.split(`,`);
   data.author = {
     name

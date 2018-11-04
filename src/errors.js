@@ -27,7 +27,6 @@ class ValidationError extends Error {
   }
 }
 
-
 module.exports = {
   NotFoundError,
   BadRequest,

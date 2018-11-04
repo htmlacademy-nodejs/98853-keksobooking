@@ -1,7 +1,7 @@
 'use strict';
 
 const {ValidationError} = require(`../errors.js`);
-const generatorOptions = require(`../data/generator-options.js`);
+const {GeneratorOptions} = require(`../data/generator-options.js`);
 const {getInvalidValue} = require(`../utils.js`);
 
 const TimeLimits = {
@@ -30,17 +30,17 @@ const ValidateOptions = {
   }
 };
 
-const isRequired = (data) => data ? null : `is required`;
+const isRequired = (data) => data ? null : `Поле не может быть пустым`;
 const isLengthInRange = (min, max) => (data) => data.length >= min && data.length < max ? null : `Введите значение от ${min} до ${max} символов`;
 const isInArray = (array) => (data) => array.includes(data) ? null : `Введите одно из следующий значений: ${array.join(`, `)}`;
 const isInRange = (min, max) => (data) => data >= min && data < max ? null : `Введите значение от ${min} до ${max}`;
 const isTimeFormat = (data) => {
   const array = data.split(`:`);
   const hours = Number(array[0]);
-  const MINUTES = Number(array[1]);
+  const minutes = Number(array[1]);
   const hoursValidate = hours >= TimeLimits.MIN_HOURS && hours <= TimeLimits.MAX_HOURS;
-  const MINUTESValidate = MINUTES >= TimeLimits.MIN_MINUTES && MINUTES <= TimeLimits.MAX_MINUTES;
-  return hoursValidate && MINUTESValidate ? null : `Введите время в формате HH:mm`;
+  const minutesValidate = minutes >= TimeLimits.MIN_MINUTES && minutes <= TimeLimits.MAX_MINUTES;
+  return hoursValidate && minutesValidate ? null : `Введите время в формате HH:mm`;
 };
 
 const isArrayOfUniqueValues = (data) => {
@@ -62,18 +62,17 @@ const getInvalidValues = (original) => (data) => {
 
 const offersValidationSchema = {
   title: [isRequired, isLengthInRange(ValidateOptions.title.MIN_LENGTH, ValidateOptions.title.MAX_LENGTH)],
-  type: [isRequired, isInArray(generatorOptions.TYPES)],
+  type: [isRequired, isInArray(GeneratorOptions.TYPES)],
   price: [isRequired, isInRange(ValidateOptions.price.MIN, ValidateOptions.price.MAX)],
   checkin: [isRequired, isTimeFormat],
   checkout: [isRequired, isTimeFormat],
   rooms: [isRequired, isInRange(ValidateOptions.rooms.MIN, ValidateOptions.rooms.MAX)],
   address: [isRequired, isLengthInRange(ValidateOptions.address.MIN_LENGTH, ValidateOptions.address.MAX_LENGTH)],
-  features: [getInvalidValues(generatorOptions.FEATURES), isArrayOfUniqueValues]
+  features: [getInvalidValues(GeneratorOptions.FEATURES), isArrayOfUniqueValues]
 };
 
-let fields = Object.keys(offersValidationSchema);
-
 const validate = (data) => {
+  const fields = Object.keys(offersValidationSchema);
   const errors = fields.reduce((acc, it) => {
     offersValidationSchema[it].forEach((fn) => {
       const error = fn(data[it]);
