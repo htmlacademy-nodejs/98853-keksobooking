@@ -34,8 +34,7 @@ module.exports = (router) => {
       [dateValidation,
         asyncMiddleware(async (req, res) => {
           const offer = await getOfferByDate(req, router);
-          const result = await router.imageStore.get(offer._id);
-
+          const result = await router.imageStore.get(`${offer._id}-avatar`);
           if (!result) {
             throw new NotFoundError(`Аватар автора объявления с датой ${offer.date} не найден`);
           }

@@ -53,17 +53,11 @@ const limitValidationFn = (req, res, next) => {
 
 const dataValidation = (req, res, _next) => {
   if (req.files && Object.keys(req.files).length) {
-    const photos = req.files[`preview`];
-    if (req.files[`avatar`]) {
-      const avatar = req.files[`avatar`][0];
-      isImageMimeType(avatar);
-      req.body.avatar = avatar.originalname;
-    }
-    if (photos) {
-      isImageMimeType(photos);
-      req.body.photos = [];
-      photos.forEach((it) => req.body.photos.push(it.originalname));
-    }
+    Object.keys(req.files).forEach((it) => {
+      const file = req.files[it][0];
+      isImageMimeType(file);
+      req.body[it] = file.originalname;
+    });
   }
   validate(req.body);
   _next();
@@ -90,8 +84,6 @@ const formatData = (req, res, _next) => {
   _next();
 };
 
-// const saveAndSendData =
-
 
 module.exports = (router) => {
   router.get(``,
@@ -107,7 +99,7 @@ module.exports = (router) => {
 
   router.post(``,
       jsonParser,
-      [upload.fields([{name: `avatar`, maxCount: 1}, {name: `preview`, maxCount: 8}]),
+      [upload.fields([{name: `avatar`, maxCount: 1}, {name: `preview`, maxCount: 1}]),
         dataValidation,
         formatData,
         asyncMiddleware(async (req, res, _next) => {
@@ -115,14 +107,10 @@ module.exports = (router) => {
           const result = await router.offerStore.saveOne(body);
           const {insertedId} = result;
           if (req.files && Object.keys(req.files).length) {
-            const photos = req.files[`preview`];
-            if (req.files[`avatar`]) {
-              const avatar = req.files[`avatar`][0];
-              await router.imageStore.save(insertedId, toStream(avatar.buffer));
-            }
-            if (photos) {
-              photos.forEach(async (it) => await router.imageStore.save(insertedId, toStream(it.buffer)));
-            }
+            Object.keys(req.files).forEach(async (it) => {
+              const file = req.files[it][0];
+              await router.imageStore.save(`${insertedId}-${it}`, toStream(file.buffer));
+            });
           }
           res.send(body);
         })
