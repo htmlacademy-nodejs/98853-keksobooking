@@ -1,6 +1,6 @@
 'use strict';
 
-const startDataBase = require(`../database/db`);
+const startDatabase = require(`../database/db`);
 const mongodb = require(`mongodb`);
 
 class ImageStore {
@@ -9,7 +9,7 @@ class ImageStore {
     if (this._bucket) {
       return this._bucket;
     }
-    const dBase = await startDataBase();
+    const dBase = await startDatabase();
     if (!this._bucket) {
       this._bucket = new mongodb.GridFSBucket(dBase, {
         chunkSizeBytes: 512 * 1024,
