@@ -48,6 +48,8 @@ const getInvalidValue = (current, original) => {
   return array.filter((it) => !original.includes(it));
 };
 
+const asyncMiddleware = (fn) => (req, res, next) => fn(req, res, next).catch(next);
+
 module.exports = {
   getRandomFromArr,
   getRandomFromRange,
@@ -57,5 +59,6 @@ module.exports = {
   getRandomHash,
   isInteger,
   getInvalidValue,
-  isImageName
+  isImageName,
+  asyncMiddleware
 };

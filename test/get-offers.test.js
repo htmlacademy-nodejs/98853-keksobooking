@@ -8,7 +8,7 @@ const DEFAULT_LIMIT_VALUE = 20;
 
 const offersStoreMock = require(`./mock/offers-store-mock`);
 const imagesStoreMock = require(`./mock/images-store-mock`);
-const offersRouter = require(`../src/offers/route.js`)(offersStoreMock, imagesStoreMock);
+const offersRouter = require(`../src/offers/routes/main.js`)(offersStoreMock, imagesStoreMock);
 
 const app = express();
 
@@ -95,15 +95,15 @@ describe(`GET /api/offers`, () => {
 });
 
 describe(`GET /api/offers/:date`, () => {
-  it(`if offer with date "1539441679957" is found the server will return this offer`, async () => {
+  it(`if offer with date "1541231052501" is found the server will return this offer`, async () => {
     await request(app).
-      get(`/api/offers/1539441679957`).
+      get(`/api/offers/1541231052501`).
       set(`Accept`, `application/json`).
       expect(200).
       expect(`Content-Type`, /json/).
       then((res) => {
         const offer = res.body;
-        assert.strictEqual(offer.date, 1539441679957);
+        assert.strictEqual(offer.date, 1541231052501);
       });
   });
 
@@ -111,19 +111,19 @@ describe(`GET /api/offers/:date`, () => {
     await request(app).
       get(`/api/offers/345638645873`).
       set(`Accept`, `text/html`).
-      expect(404).
+      expect(400).
       expect(`Content-Type`, `text/html; charset=utf-8`).
-      expect(`404 Not Found Объявлений с датой 345638645873 не нашлось!`);
+      expect(`400 Bad Request Объявлений с датой 345638645873 не нашлось!`);
   });
 });
 
 describe(`GET /api/offers/:date/avatar`, () => {
   it(`if avatar of author offer with date "1539441679957" is not found the server will return the correct error code`, async () => {
     await request(app).
-      get(`/api/offers/1539441679957/avatar`).
+      get(`/api/offers/1541231052501/avatar`).
       set(`Accept`, `text/html`).
       expect(404).
       expect(`Content-Type`, `text/html; charset=utf-8`).
-      expect(`404 Not Found Аватар автора объявления с датой 1539441679957 не найден`);
+      expect(`404 Not Found Аватар автора объявления с датой 1541231052501 не найден`);
   });
 });

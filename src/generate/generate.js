@@ -3,6 +3,7 @@
 const readline = require(`readline`);
 const fs = require(`fs`);
 const {promisify} = require(`util`);
+const logger = require(`../logger`);
 const {getOffers} = require(`./offer-generate.js`);
 const {isInteger} = require(`../utils.js`);
 const MAX_OF_ELEMENTS_GENERATED = 100;
@@ -97,7 +98,7 @@ const executeGeneration = async () => {
       await saveItemsToFile(filePath, itemsCount);
     }
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     process.exit(1);
   }
   rl.close();
