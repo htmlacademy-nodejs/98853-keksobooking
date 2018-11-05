@@ -3,7 +3,7 @@
 const startDatabase = require(`../database/db`);
 const mongodb = require(`mongodb`);
 
-class ImageStore {
+class ImagesStore {
 
   async getBucket() {
     if (this._bucket) {
@@ -38,4 +38,4 @@ class ImageStore {
 
 }
 
-module.exports = () => new ImageStore();
+module.exports = () => new ImagesStore();

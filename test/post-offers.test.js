@@ -39,6 +39,17 @@ describe(`POST /api/offers`, () => {
     assert.deepEqual(body.author, {"name": sent.name, "avatar": sent.avatar});
   });
 
+  it(`if send {} server will return correct error code`, async () => {
+    await request(app).
+      post(`/api/offers`).
+      send({}).
+      set(`Accept`, `application/json`).
+      set(`Content-Type`, `application/json`).
+      expect(400).
+      expect(`Content-Type`, /json/);
+  });
+
+
   it(`send offer as multipart/form-data`, async () => {
     const response = await request(app).
       post(`/api/offers`).
@@ -100,6 +111,36 @@ describe(`POST /api/offers`, () => {
     assert.deepEqual(body.author, {"name": sent.name, "avatar": sent.avatar});
   });
 
+  it(`if send not all required fields server will return correct error code`, async () => {
+    await request(app).
+      post(`/api/offers`).
+      send({name: `Petr`,
+        type: `flat`,
+        checkin: `12:00`}).
+      set(`Accept`, `application/json`).
+      set(`Content-Type`, `application/json`).
+      expect(400);
+  });
+
+  it(`if send invalid data server will return correct error code`, async () => {
+    const invalidData = Object.assign({}, sent, {BLABLABLA: 10000});
+    await request(app).
+      post(`/api/offers`).
+      send(invalidData).
+      set(`Accept`, `application/json`).
+      set(`Content-Type`, `application/json`).
+      expect(400).
+      expect(`Content-Type`, /json/).
+      expect(JSON.stringify([
+        {
+          error: `Validation Error`,
+          fieldName: `BLABLABLA`,
+          errorMessage: `Недопустимое поле: BLABLABLA`
+        }
+      ])
+      );
+  });
+
 
   it(`if send incorrect data server will return the correct response`, async () => {
     await request(app).
@@ -121,31 +162,6 @@ describe(`POST /api/offers`, () => {
           error: `Validation Error`,
           fieldName: `title`,
           errorMessage: `Введите значение от 30 до 140 символов`
-        },
-        {
-          error: `Validation Error`,
-          fieldName: `type`,
-          errorMessage: `Введите одно из следующий значений: flat, palace, house, bungalo`
-        },
-        {
-          error: `Validation Error`,
-          fieldName: `price`,
-          errorMessage: `Введите значение от 1000 до 1000000`
-        },
-        {
-          error: `Validation Error`,
-          fieldName: `checkin`,
-          errorMessage: `Введите время в формате HH:mm`
-        },
-        {
-          error: `Validation Error`,
-          fieldName: `rooms`,
-          errorMessage: `Введите значение от 0 до 1000`
-        },
-        {
-          error: `Validation Error`,
-          fieldName: `features`,
-          errorMessage: `Недопустимое значение`
         }
       ])
       );

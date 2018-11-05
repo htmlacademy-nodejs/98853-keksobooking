@@ -2,35 +2,45 @@
 
 const {ValidationError} = require(`../errors.js`);
 const {GeneratorOptions} = require(`../data/generator-options.js`);
-const {getInvalidValue} = require(`../utils.js`);
+const {getInvalidValue, isImageName} = require(`../utils.js`);
 
-const TimeLimits = {
+const TimeLimit = {
   MIN_HOURS: 0,
   MAX_HOURS: 24,
   MIN_MINUTES: 0,
   MAX_MINUTES: 60
 };
 
-const ValidateOptions = {
+const ValidateOption = {
   title: {
     MIN_LENGTH: 30,
     MAX_LENGTH: 140
   },
   price: {
     MIN: 1000,
-    MAX: 1000000,
+    MAX: 1000000
   },
   rooms: {
     MIN: 0,
-    MAX: 1000,
+    MAX: 1000
   },
   address: {
     MIN_LENGTH: 2,
-    MAX_LENGTH: 100,
+    MAX_LENGTH: 100
+  },
+  name: {
+    MIN_LENGTH: 2,
+    MAX_LENGTH: 50,
   }
 };
 
 const isRequired = (data) => data ? null : `Поле не может быть пустым`;
+const isImageFormat = (data) => {
+  if (data) {
+    return isImageName(data) ? null : `Недопустимый формат картинки`;
+  }
+  return null;
+};
 const isLengthInRange = (min, max) => (data) => data.length >= min && data.length < max ? null : `Введите значение от ${min} до ${max} символов`;
 const isInArray = (array) => (data) => array.includes(data) ? null : `Введите одно из следующий значений: ${array.join(`, `)}`;
 const isInRange = (min, max) => (data) => data >= min && data < max ? null : `Введите значение от ${min} до ${max}`;
@@ -38,9 +48,9 @@ const isTimeFormat = (data) => {
   const array = data.split(`:`);
   const hours = Number(array[0]);
   const minutes = Number(array[1]);
-  const hoursValidate = hours >= TimeLimits.MIN_HOURS && hours <= TimeLimits.MAX_HOURS;
-  const minutesValidate = minutes >= TimeLimits.MIN_MINUTES && minutes <= TimeLimits.MAX_MINUTES;
-  return hoursValidate && minutesValidate ? null : `Введите время в формате HH:mm`;
+  const isHoursValid = hours >= TimeLimit.MIN_HOURS && hours <= TimeLimit.MAX_HOURS;
+  const isMinutesValid = minutes >= TimeLimit.MIN_MINUTES && minutes <= TimeLimit.MAX_MINUTES;
+  return isHoursValid && isMinutesValid ? null : `Введите время в формате HH:mm`;
 };
 
 const isArrayOfUniqueValues = (data) => {
@@ -61,19 +71,29 @@ const getInvalidValues = (original) => (data) => {
 
 
 const offersValidationSchema = {
-  title: [isRequired, isLengthInRange(ValidateOptions.title.MIN_LENGTH, ValidateOptions.title.MAX_LENGTH)],
+  title: [isRequired, isLengthInRange(ValidateOption.title.MIN_LENGTH, ValidateOption.title.MAX_LENGTH)],
   type: [isRequired, isInArray(GeneratorOptions.TYPES)],
-  price: [isRequired, isInRange(ValidateOptions.price.MIN, ValidateOptions.price.MAX)],
+  price: [isRequired, isInRange(ValidateOption.price.MIN, ValidateOption.price.MAX)],
   checkin: [isRequired, isTimeFormat],
   checkout: [isRequired, isTimeFormat],
-  rooms: [isRequired, isInRange(ValidateOptions.rooms.MIN, ValidateOptions.rooms.MAX)],
-  address: [isRequired, isLengthInRange(ValidateOptions.address.MIN_LENGTH, ValidateOptions.address.MAX_LENGTH)],
-  features: [getInvalidValues(GeneratorOptions.FEATURES), isArrayOfUniqueValues]
+  rooms: [isRequired, isInRange(ValidateOption.rooms.MIN, ValidateOption.rooms.MAX)],
+  address: [isRequired, isLengthInRange(ValidateOption.address.MIN_LENGTH, ValidateOption.address.MAX_LENGTH)],
+  features: [getInvalidValues(GeneratorOptions.FEATURES), isArrayOfUniqueValues],
+  avatar: [isImageFormat],
+  preview: [isImageFormat],
+  name: [isLengthInRange(ValidateOption.name.MIN_LENGTH, ValidateOption.name.MAX_LENGTH)]
 };
 
 const validate = (data) => {
   const fields = Object.keys(offersValidationSchema);
-  const errors = fields.reduce((acc, it) => {
+  const invalidValue = getInvalidValue(Object.keys(data), fields)[0];
+  if (invalidValue) {
+    throw new ValidationError([{
+      fieldName: invalidValue,
+      errorMessage: `Недопустимое поле: ${invalidValue}`
+    }]);
+  }
+  fields.reduce((acc, it) => {
     offersValidationSchema[it].forEach((fn) => {
       const error = fn(data[it]);
       if (error) {
@@ -81,13 +101,11 @@ const validate = (data) => {
           fieldName: it,
           errorMessage: error
         });
+        throw new ValidationError(acc);
       }
     });
     return acc;
   }, []);
-  if (errors.length) {
-    throw new ValidationError(errors);
-  }
   return data;
 };
 

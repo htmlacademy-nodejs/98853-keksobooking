@@ -4,20 +4,21 @@ const express = require(`express`);
 const app = express();
 const logger = require(`./logger`);
 
-const getOfferStore = require(`./offers/store.js`);
-const getImageStore = require(`./images/store.js`);
+const getoffersStore = require(`./offers/store.js`);
+const getImagesStore = require(`./images/store.js`);
 const offersRouter = require(`./offers/routes/main.js`);
 
 const DEFAULT_PORT = 3000;
 const DEFAULT_HOST = `localhost`;
 const DIR_NAME_WITH_STATIC = `static`;
 
-const basePath = require(`path`).join(__dirname, `..`, DIR_NAME_WITH_STATIC);
-
 const {SERVER_PORT = DEFAULT_PORT, SERVER_HOST = DEFAULT_HOST} = process.env;
 
+const basePath = require(`path`).join(__dirname, `..`, DIR_NAME_WITH_STATIC);
+
+
 const generateJSONError = ({name: error, message: errorMessage}) => {
-  let errorObj = {
+  const errorObj = {
     error,
     errorMessage
   };
@@ -53,9 +54,9 @@ app.use(express.static(basePath));
 app.use(ALLOW_CORS);
 
 const startServer = (port = DEFAULT_PORT) => {
-  const offerStore = getOfferStore();
-  const imageStore = getImageStore();
-  app.use(`/api/offers`, offersRouter(offerStore, imageStore));
+  const offersStore = getoffersStore();
+  const ImagesStore = getImagesStore();
+  app.use(`/api/offers`, offersRouter(offersStore, ImagesStore));
   app.use(NOT_FOUND_HANDLER);
   app.use(ERROR_HANDLER);
   app.listen(port, () => console.log(`Server starting... Go to http://${SERVER_HOST}:${SERVER_PORT}`));

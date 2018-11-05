@@ -56,7 +56,7 @@ describe(`GET /api/offers`, () => {
       set(`Accept`, `text/html`).
       expect(400).
       expect(`Content-Type`, `text/html; charset=utf-8`).
-      expect(`400 Bad Request Неверное значение параметра skip!`);
+      expect(`400 Bad Request Неверное значение параметра skip или limit!`);
   });
 
   it(`if enter invalid parameter "limit" server will return the correct error code`, async () => {
@@ -65,7 +65,7 @@ describe(`GET /api/offers`, () => {
       set(`Accept`, `text/html`).
       expect(400).
       expect(`Content-Type`, `text/html; charset=utf-8`).
-      expect(`400 Bad Request Неверное значение параметра limit!`);
+      expect(`400 Bad Request Неверное значение параметра skip или limit!`);
   });
 
   it(`if enter only one parameter "skip" the server will use default value of parameter "limit"`, async () => {
@@ -111,9 +111,9 @@ describe(`GET /api/offers/:date`, () => {
     await request(app).
       get(`/api/offers/345638645873`).
       set(`Accept`, `text/html`).
-      expect(400).
+      expect(404).
       expect(`Content-Type`, `text/html; charset=utf-8`).
-      expect(`400 Bad Request Объявлений с датой 345638645873 не нашлось!`);
+      expect(`404 Not Found Предложение не найдено`);
   });
 });
 
@@ -124,6 +124,15 @@ describe(`GET /api/offers/:date/avatar`, () => {
       set(`Accept`, `text/html`).
       expect(404).
       expect(`Content-Type`, `text/html; charset=utf-8`).
-      expect(`404 Not Found Аватар автора объявления с датой 1541231052501 не найден`);
+      expect(`404 Not Found Предложение не имеет аватара`);
+  });
+
+  it(`if offer with date "345638645873" is not found the server will return the correct error code`, async () => {
+    await request(app).
+      get(`/api/offers/345638645873/avatar`).
+      set(`Accept`, `text/html`).
+      expect(400).
+      expect(`Content-Type`, `text/html; charset=utf-8`).
+      expect(`400 Bad Request Предложение отсутствует`);
   });
 });

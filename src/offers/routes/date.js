@@ -11,21 +11,15 @@ const dateValidation = (req, res, _next) => {
   _next();
 };
 
-const getOfferByDate = async (req, router) => {
-  const offerDate = req.params.date;
-  const offer = await router.offerStore.getOffer(offerDate);
-  if (!offer) {
-    throw new BadRequest(`Объявлений с датой ${offerDate} не нашлось!`);
-  }
-  return offer;
-};
-
 
 module.exports = (router) => {
   router.get(`/:date`,
       [dateValidation,
         asyncMiddleware(async (req, res) => {
-          const offer = await getOfferByDate(req, router);
+          const offer = await router.offersStore.getOffer(req.params.date);
+          if (!offer) {
+            throw new NotFoundError(`Предложение не найдено`);
+          }
           res.send(offer);
         })
       ]);
@@ -33,10 +27,13 @@ module.exports = (router) => {
   router.get(`/:date/avatar`,
       [dateValidation,
         asyncMiddleware(async (req, res) => {
-          const offer = await getOfferByDate(req, router);
-          const result = await router.imageStore.get(`${offer._id}-avatar`);
+          const offer = await router.offersStore.getOffer(req.params.date);
+          if (!offer) {
+            throw new BadRequest(`Предложение отсутствует`);
+          }
+          const result = await router.imagesStore.get(`${offer._id}-avatar`);
           if (!result) {
-            throw new NotFoundError(`Аватар автора объявления с датой ${offer.date} не найден`);
+            throw new NotFoundError(`Предложение не имеет аватара`);
           }
 
           const {stream, info} = result;
