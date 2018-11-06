@@ -9,8 +9,8 @@ const offersRouter = Router();
 defaultRoute(offersRouter);
 dateRoute(offersRouter);
 
-module.exports = (offerStore, imageStore) => {
-  offersRouter.offerStore = offerStore;
-  offersRouter.imageStore = imageStore;
+module.exports = (offersStore, imagesStore) => {
+  offersRouter.offersStore = offersStore;
+  offersRouter.imagesStore = imagesStore;
   return offersRouter;
 };

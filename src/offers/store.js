@@ -12,23 +12,23 @@ const setupCollection = async () => {
 
 class OffersStore {
   constructor(collection) {
-    this.collection = collection;
+    this._collection = collection;
   }
 
   async getOffer(date) {
-    return (await this.collection).findOne({date: Number(date)});
+    return (await this._collection).findOne({date: Number(date)});
   }
 
   async getAllOffers() {
-    return (await this.collection).find();
+    return (await this._collection).find({}, {projection: {_id: 0}});
   }
 
   async saveOne(offerData) {
-    return (await this.collection).insertOne(offerData);
+    return (await this._collection).insertOne(offerData);
   }
 
   async saveMany(offersData) {
-    return (await this.collection).insertMany(offersData);
+    return (await this._collection).insertMany(offersData);
   }
 
 }

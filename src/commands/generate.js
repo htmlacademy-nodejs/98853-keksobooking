@@ -4,7 +4,7 @@ const readline = require(`readline`);
 const fs = require(`fs`);
 const {promisify} = require(`util`);
 const logger = require(`../logger`);
-const {getOffers} = require(`./offer-generate.js`);
+const {getOffers} = require(`../generate/offer-generate.js`);
 const {isInteger} = require(`../utils.js`);
 const MAX_OF_ELEMENTS_GENERATED = 100;
 const MIN_OF_ELEMENTS_GENERATED = 1;
@@ -26,12 +26,10 @@ const FILE_WRITE_OPTIONS = {encoding: `utf-8`, mode: 0o644};
 const writeFile = promisify(fs.writeFile);
 const open = promisify(fs.open);
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
+let rl;
 
 const askUser = async (question, validationFn) => {
+
   let currentQuestion;
   let answer;
 
@@ -75,9 +73,11 @@ const confirmRewrite = async () => {
 const saveItemsToFile = async (filePath, itemCount) => {
   const data = getOffers(itemCount);
   try {
-    await open(filePath, `w`);
+    await open(filePath, `wx`);
   } catch (error) {
-    if (error.code === `EEXIST`) {
+    if (error.code !== `EEXIST`) {
+      throw error;
+    } else {
       const isReadyToWrite = await confirmRewrite();
       if (!isReadyToWrite) {
         console.log(`Пользователь запретил перезапись!`);
@@ -90,6 +90,10 @@ const saveItemsToFile = async (filePath, itemCount) => {
 };
 
 const executeGeneration = async () => {
+  rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
   try {
     const isReadyToGenerate = await confirmGeneration();
     if (isReadyToGenerate) {

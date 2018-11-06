@@ -39,6 +39,17 @@ describe(`POST /api/offers`, () => {
     assert.deepEqual(body.author, {"name": sent.name, "avatar": sent.avatar});
   });
 
+  it(`if send {} server will return correct error code`, async () => {
+    await request(app).
+      post(`/api/offers`).
+      send({}).
+      set(`Accept`, `application/json`).
+      set(`Content-Type`, `application/json`).
+      expect(400).
+      expect(`Content-Type`, /json/);
+  });
+
+
   it(`send offer as multipart/form-data`, async () => {
     const response = await request(app).
       post(`/api/offers`).
@@ -98,6 +109,36 @@ describe(`POST /api/offers`, () => {
     const {body} = response;
     assert.deepEqual(body.offer, {"title": sent.title, "address": sent.address, "type": sent.type, "price": sent.price, "checkin": sent.checkin, "checkout": sent.checkout, "rooms": sent.rooms});
     assert.deepEqual(body.author, {"name": sent.name, "avatar": sent.avatar});
+  });
+
+  it(`if send not all required fields server will return correct error code`, async () => {
+    await request(app).
+      post(`/api/offers`).
+      send({name: `Petr`,
+        type: `flat`,
+        checkin: `12:00`}).
+      set(`Accept`, `application/json`).
+      set(`Content-Type`, `application/json`).
+      expect(400);
+  });
+
+  it(`if send invalid data server will return correct error code`, async () => {
+    const invalidData = Object.assign({}, sent, {BLABLABLA: 10000});
+    await request(app).
+      post(`/api/offers`).
+      send(invalidData).
+      set(`Accept`, `application/json`).
+      set(`Content-Type`, `application/json`).
+      expect(400).
+      expect(`Content-Type`, /json/).
+      expect(JSON.stringify([
+        {
+          error: `Validation Error`,
+          fieldName: `BLABLABLA`,
+          errorMessage: `Недопустимое поле`
+        }
+      ])
+      );
   });
 
 

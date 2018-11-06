@@ -1,46 +1,57 @@
 'use strict';
 
-const {ValidationError} = require(`../errors.js`);
-const generatorOptions = require(`../data/generator-options.js`);
-const {getInvalidValue} = require(`../utils.js`);
+const {ValidationError, BadRequest} = require(`../errors.js`);
+const {GeneratorOptions} = require(`../data/generator-options.js`);
+const {getInvalidValue, isImageName} = require(`../utils.js`);
 
-const TimeLimits = {
+const TimeLimit = {
   MIN_HOURS: 0,
   MAX_HOURS: 24,
   MIN_MINUTES: 0,
   MAX_MINUTES: 60
 };
 
-const ValidateOptions = {
+const ValidateOption = {
   title: {
     MIN_LENGTH: 30,
     MAX_LENGTH: 140
   },
   price: {
     MIN: 1000,
-    MAX: 1000000,
+    MAX: 1000000
   },
   rooms: {
     MIN: 0,
-    MAX: 1000,
+    MAX: 1000
   },
   address: {
     MIN_LENGTH: 2,
-    MAX_LENGTH: 100,
+    MAX_LENGTH: 100
+  },
+  name: {
+    MIN_LENGTH: 2,
+    MAX_LENGTH: 50,
   }
 };
 
-const isRequired = (data) => data ? null : `is required`;
+const REQUIRED_FIELDS = [`title`, `type`, `price`, `checkin`, `checkout`, `rooms`, `address`];
+
+const isImageFormat = (data) => {
+  if (data) {
+    return isImageName(data) ? null : `Недопустимый формат картинки`;
+  }
+  return null;
+};
 const isLengthInRange = (min, max) => (data) => data.length >= min && data.length < max ? null : `Введите значение от ${min} до ${max} символов`;
 const isInArray = (array) => (data) => array.includes(data) ? null : `Введите одно из следующий значений: ${array.join(`, `)}`;
 const isInRange = (min, max) => (data) => data >= min && data < max ? null : `Введите значение от ${min} до ${max}`;
 const isTimeFormat = (data) => {
   const array = data.split(`:`);
   const hours = Number(array[0]);
-  const MINUTES = Number(array[1]);
-  const hoursValidate = hours >= TimeLimits.MIN_HOURS && hours <= TimeLimits.MAX_HOURS;
-  const MINUTESValidate = MINUTES >= TimeLimits.MIN_MINUTES && MINUTES <= TimeLimits.MAX_MINUTES;
-  return hoursValidate && MINUTESValidate ? null : `Введите время в формате HH:mm`;
+  const minutes = Number(array[1]);
+  const isHoursValid = hours >= TimeLimit.MIN_HOURS && hours <= TimeLimit.MAX_HOURS;
+  const isMinutesValid = minutes >= TimeLimit.MIN_MINUTES && minutes <= TimeLimit.MAX_MINUTES;
+  return isHoursValid && isMinutesValid ? null : `Введите время в формате HH:mm`;
 };
 
 const isArrayOfUniqueValues = (data) => {
@@ -59,38 +70,64 @@ const getInvalidValues = (original) => (data) => {
   return null;
 };
 
-
+// тут я убрал функцию IsRequired (так как проверку делаю отдельно)
 const offersValidationSchema = {
-  title: [isRequired, isLengthInRange(ValidateOptions.title.MIN_LENGTH, ValidateOptions.title.MAX_LENGTH)],
-  type: [isRequired, isInArray(generatorOptions.TYPES)],
-  price: [isRequired, isInRange(ValidateOptions.price.MIN, ValidateOptions.price.MAX)],
-  checkin: [isRequired, isTimeFormat],
-  checkout: [isRequired, isTimeFormat],
-  rooms: [isRequired, isInRange(ValidateOptions.rooms.MIN, ValidateOptions.rooms.MAX)],
-  address: [isRequired, isLengthInRange(ValidateOptions.address.MIN_LENGTH, ValidateOptions.address.MAX_LENGTH)],
-  features: [getInvalidValues(generatorOptions.FEATURES), isArrayOfUniqueValues]
+  title: [isLengthInRange(ValidateOption.title.MIN_LENGTH, ValidateOption.title.MAX_LENGTH)],
+  type: [isInArray(GeneratorOptions.TYPES)],
+  price: [isInRange(ValidateOption.price.MIN, ValidateOption.price.MAX)],
+  checkin: [isTimeFormat],
+  checkout: [isTimeFormat],
+  rooms: [isInRange(ValidateOption.rooms.MIN, ValidateOption.rooms.MAX)],
+  guests: [],
+  description: [],
+  address: [isLengthInRange(ValidateOption.address.MIN_LENGTH, ValidateOption.address.MAX_LENGTH)],
+  features: [getInvalidValues(GeneratorOptions.FEATURES), isArrayOfUniqueValues],
+  avatar: [isImageFormat],
+  preview: [isImageFormat],
+  name: []
 };
 
-let fields = Object.keys(offersValidationSchema);
-
 const validate = (data) => {
-  const errors = fields.reduce((acc, it) => {
-    offersValidationSchema[it].forEach((fn) => {
-      const error = fn(data[it]);
-      if (error) {
-        acc.push({
-          fieldName: it,
-          errorMessage: error
+  const errors = [];
+
+  const possibleFields = Object.keys(offersValidationSchema);
+  const dataFields = Object.keys(data);
+
+  if (!dataFields.length) {
+    throw new BadRequest(`Нельзя отправить пустой объект`);
+  }
+
+  const invalidValue = getInvalidValue(dataFields, possibleFields);
+  if (invalidValue.length) {
+    invalidValue.forEach((invalidField) => errors.push({fieldName: invalidField, errorMessage: `Недопустимое поле`}));
+  }
+
+  const emptyFields = getInvalidValue(REQUIRED_FIELDS, dataFields);
+
+  if (emptyFields.length) {
+    emptyFields.forEach((emptyField) => errors.push({fieldName: emptyField, errorMessage: `is required`}));
+  } else {
+    possibleFields.forEach((it) => {
+      const validateFunctions = offersValidationSchema[it];
+      if (validateFunctions.length) {
+        validateFunctions.forEach((fn) => {
+          const error = fn(data[it]);
+          if (error) {
+            errors.push({
+              fieldName: it,
+              errorMessage: error
+            });
+          }
         });
       }
     });
-    return acc;
-  }, []);
+  }
+
   if (errors.length) {
     throw new ValidationError(errors);
   }
-  return data;
 };
+
 
 module.exports = {
   validate
