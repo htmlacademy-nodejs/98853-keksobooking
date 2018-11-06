@@ -75,15 +75,14 @@ const saveItemsToFile = async (filePath, itemCount) => {
   try {
     await open(filePath, `wx`);
   } catch (error) {
-    if (error.code === `EEXIST`) {
+    if (error.code !== `EEXIST`) {
+      throw error;
+    } else {
       const isReadyToWrite = await confirmRewrite();
       if (!isReadyToWrite) {
         console.log(`Пользователь запретил перезапись!`);
         return;
       }
-    } else {
-      logger.error(error);
-      process.exit(1);
     }
   }
   await writeFile(filePath, JSON.stringify(data), FILE_WRITE_OPTIONS);
