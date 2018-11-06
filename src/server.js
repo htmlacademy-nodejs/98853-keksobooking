@@ -2,7 +2,7 @@
 
 const express = require(`express`);
 const app = express();
-// const logger = require(`./logger`);
+const logger = require(`./logger`);
 
 const getoffersStore = require(`./offers/store.js`);
 const getImagesStore = require(`./images/store.js`);
@@ -39,7 +39,7 @@ const ERROR_HANDLER = (err, req, res, _next) => {
     const isJSONSupported = acceptElements.includes(`application/json`);
     const contentType = isJSONSupported ? `application/json; charset=UTF-8` : `text/html; charset=UTF-8`;
     res.setHeader(`Content-Type`, contentType);
-    console.error(err);
+    logger.error(err);
     res.status(err.code || 500).send(isJSONSupported ? generateJSONError(err) : generateStringError(err));
   }
 };
@@ -55,8 +55,8 @@ app.use(ALLOW_CORS);
 
 const startServer = (port = DEFAULT_PORT) => {
   const offersStore = getoffersStore();
-  const ImagesStore = getImagesStore();
-  app.use(`/api/offers`, offersRouter(offersStore, ImagesStore));
+  const imagesStore = getImagesStore();
+  app.use(`/api/offers`, offersRouter(offersStore, imagesStore));
   app.use(NOT_FOUND_HANDLER);
   app.use(ERROR_HANDLER);
   app.listen(port, () => console.log(`Server starting... Go to http://${SERVER_HOST}:${SERVER_PORT}`));

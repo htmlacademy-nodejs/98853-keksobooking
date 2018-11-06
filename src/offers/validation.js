@@ -36,7 +36,6 @@ const ValidateOption = {
 
 const REQUIRED_FIELDS = [`title`, `type`, `price`, `checkin`, `checkout`, `rooms`, `address`];
 
-// const isRequired = (data) => data ? null : `Поле не может быть пустым`;
 const isImageFormat = (data) => {
   if (data) {
     return isImageName(data) ? null : `Недопустимый формат картинки`;
