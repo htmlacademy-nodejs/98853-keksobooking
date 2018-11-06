@@ -26,10 +26,7 @@ const FILE_WRITE_OPTIONS = {encoding: `utf-8`, mode: 0o644};
 const writeFile = promisify(fs.writeFile);
 const open = promisify(fs.open);
 
-let rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
+let rl;
 
 const askUser = async (question, validationFn) => {
 
@@ -84,9 +81,6 @@ const saveItemsToFile = async (filePath, itemCount) => {
         console.log(`Пользователь запретил перезапись!`);
         return;
       }
-    } else {
-      logger.error(error);
-      process.exit(1);
     }
   }
   await writeFile(filePath, JSON.stringify(data), FILE_WRITE_OPTIONS);
@@ -94,6 +88,10 @@ const saveItemsToFile = async (filePath, itemCount) => {
 };
 
 const executeGeneration = async () => {
+  rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
   try {
     const isReadyToGenerate = await confirmGeneration();
     if (isReadyToGenerate) {

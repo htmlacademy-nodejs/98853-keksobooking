@@ -77,11 +77,13 @@ const offersValidationSchema = {
   checkin: [isRequired, isTimeFormat],
   checkout: [isRequired, isTimeFormat],
   rooms: [isRequired, isInRange(ValidateOption.rooms.MIN, ValidateOption.rooms.MAX)],
+  guests: [],
+  description: [],
   address: [isRequired, isLengthInRange(ValidateOption.address.MIN_LENGTH, ValidateOption.address.MAX_LENGTH)],
   features: [getInvalidValues(GeneratorOptions.FEATURES), isArrayOfUniqueValues],
   avatar: [isImageFormat],
   preview: [isImageFormat],
-  name: [isLengthInRange(ValidateOption.name.MIN_LENGTH, ValidateOption.name.MAX_LENGTH)]
+  name: []
 };
 
 const validate = (data) => {
@@ -94,16 +96,18 @@ const validate = (data) => {
     }]);
   }
   fields.reduce((acc, it) => {
-    offersValidationSchema[it].forEach((fn) => {
-      const error = fn(data[it]);
-      if (error) {
-        acc.push({
-          fieldName: it,
-          errorMessage: error
-        });
-        throw new ValidationError(acc);
-      }
-    });
+    if (offersValidationSchema[it].length) {
+      offersValidationSchema[it].forEach((fn) => {
+        const error = fn(data[it]);
+        if (error) {
+          acc.push({
+            fieldName: it,
+            errorMessage: error
+          });
+          throw new ValidationError(acc);
+        }
+      });
+    }
     return acc;
   }, []);
   return data;
