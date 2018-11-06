@@ -1,6 +1,6 @@
 'use strict';
 
-const {ValidationError} = require(`../errors.js`);
+const {ValidationError, BadRequest} = require(`../errors.js`);
 const {GeneratorOptions} = require(`../data/generator-options.js`);
 const {getInvalidValue, isImageName} = require(`../utils.js`);
 
@@ -34,7 +34,9 @@ const ValidateOption = {
   }
 };
 
-const isRequired = (data) => data ? null : `Поле не может быть пустым`;
+const REQUIRED_FIELDS = [`title`, `type`, `price`, `checkin`, `checkout`, `rooms`, `address`];
+
+// const isRequired = (data) => data ? null : `Поле не может быть пустым`;
 const isImageFormat = (data) => {
   if (data) {
     return isImageName(data) ? null : `Недопустимый формат картинки`;
@@ -69,17 +71,17 @@ const getInvalidValues = (original) => (data) => {
   return null;
 };
 
-
+// тут я убрал функцию IsRequired (так как проверку делаю отдельно)
 const offersValidationSchema = {
-  title: [isRequired, isLengthInRange(ValidateOption.title.MIN_LENGTH, ValidateOption.title.MAX_LENGTH)],
-  type: [isRequired, isInArray(GeneratorOptions.TYPES)],
-  price: [isRequired, isInRange(ValidateOption.price.MIN, ValidateOption.price.MAX)],
-  checkin: [isRequired, isTimeFormat],
-  checkout: [isRequired, isTimeFormat],
-  rooms: [isRequired, isInRange(ValidateOption.rooms.MIN, ValidateOption.rooms.MAX)],
+  title: [isLengthInRange(ValidateOption.title.MIN_LENGTH, ValidateOption.title.MAX_LENGTH)],
+  type: [isInArray(GeneratorOptions.TYPES)],
+  price: [isInRange(ValidateOption.price.MIN, ValidateOption.price.MAX)],
+  checkin: [isTimeFormat],
+  checkout: [isTimeFormat],
+  rooms: [isInRange(ValidateOption.rooms.MIN, ValidateOption.rooms.MAX)],
   guests: [],
   description: [],
-  address: [isRequired, isLengthInRange(ValidateOption.address.MIN_LENGTH, ValidateOption.address.MAX_LENGTH)],
+  address: [isLengthInRange(ValidateOption.address.MIN_LENGTH, ValidateOption.address.MAX_LENGTH)],
   features: [getInvalidValues(GeneratorOptions.FEATURES), isArrayOfUniqueValues],
   avatar: [isImageFormat],
   preview: [isImageFormat],
@@ -87,31 +89,46 @@ const offersValidationSchema = {
 };
 
 const validate = (data) => {
-  const fields = Object.keys(offersValidationSchema);
-  const invalidValue = getInvalidValue(Object.keys(data), fields)[0];
-  if (invalidValue) {
-    throw new ValidationError([{
-      fieldName: invalidValue,
-      errorMessage: `Недопустимое поле: ${invalidValue}`
-    }]);
+  const errors = [];
+
+  const possibleFields = Object.keys(offersValidationSchema);
+  const dataFields = Object.keys(data);
+
+  if (!dataFields.length) {
+    throw new BadRequest(`Нельзя отправить пустой объект`);
   }
-  fields.reduce((acc, it) => {
-    if (offersValidationSchema[it].length) {
-      offersValidationSchema[it].forEach((fn) => {
-        const error = fn(data[it]);
-        if (error) {
-          acc.push({
-            fieldName: it,
-            errorMessage: error
-          });
-          throw new ValidationError(acc);
-        }
-      });
-    }
-    return acc;
-  }, []);
-  return data;
+
+  const invalidValue = getInvalidValue(dataFields, possibleFields);
+  if (invalidValue.length) {
+    invalidValue.forEach((invalidField) => errors.push({fieldName: invalidField, errorMessage: `Недопустимое поле`}));
+  }
+
+  const emptyFields = getInvalidValue(REQUIRED_FIELDS, dataFields);
+
+  if (emptyFields.length) {
+    emptyFields.forEach((emptyField) => errors.push({fieldName: emptyField, errorMessage: `is required`}));
+  } else {
+    possibleFields.forEach((it) => {
+      const validateFunctions = offersValidationSchema[it];
+      if (validateFunctions.length) {
+        validateFunctions.forEach((fn) => {
+          const error = fn(data[it]);
+          if (error) {
+            errors.push({
+              fieldName: it,
+              errorMessage: error
+            });
+          }
+        });
+      }
+    });
+  }
+
+  if (errors.length) {
+    throw new ValidationError(errors);
+  }
 };
+
 
 module.exports = {
   validate

@@ -135,7 +135,7 @@ describe(`POST /api/offers`, () => {
         {
           error: `Validation Error`,
           fieldName: `BLABLABLA`,
-          errorMessage: `Недопустимое поле: BLABLABLA`
+          errorMessage: `Недопустимое поле`
         }
       ])
       );
@@ -162,6 +162,31 @@ describe(`POST /api/offers`, () => {
           error: `Validation Error`,
           fieldName: `title`,
           errorMessage: `Введите значение от 30 до 140 символов`
+        },
+        {
+          error: `Validation Error`,
+          fieldName: `type`,
+          errorMessage: `Введите одно из следующий значений: flat, palace, house, bungalo`
+        },
+        {
+          error: `Validation Error`,
+          fieldName: `price`,
+          errorMessage: `Введите значение от 1000 до 1000000`
+        },
+        {
+          error: `Validation Error`,
+          fieldName: `checkin`,
+          errorMessage: `Введите время в формате HH:mm`
+        },
+        {
+          error: `Validation Error`,
+          fieldName: `rooms`,
+          errorMessage: `Введите значение от 0 до 1000`
+        },
+        {
+          error: `Validation Error`,
+          fieldName: `features`,
+          errorMessage: `Недопустимое значение`
         }
       ])
       );
