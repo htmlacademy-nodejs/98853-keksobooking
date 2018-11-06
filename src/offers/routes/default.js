@@ -113,8 +113,9 @@ module.exports = (router) => {
           const {body} = req;
           const result = await router.offersStore.saveOne(body);
           const {insertedId} = result;
-          if (req.files && Object.keys(req.files).length) {
-            Object.keys(req.files).forEach(async (it) => {
+          const files = req.files ? Object.keys(req.files) : false;
+          if (files && files.length) {
+            files.forEach(async (it) => {
               const file = req.files[it][0];
               await router.imagesStore.save(`${insertedId}-${it}`, toStream(file.buffer));
             });
