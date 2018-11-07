@@ -147,7 +147,7 @@ describe(`POST /api/offers`, () => {
       post(`/api/offers`).
       field(`title`, `Title length less than 30`).
       field(`type`, `box`).
-      field(`price`, `2000000`).
+      field(`price`, `dfsgdfg`).
       field(`checkin`, `122:00`).
       field(`checkout`, `17:00`).
       field(`features`, [`elevator`, `conditioner`, `telefon`]).
@@ -171,6 +171,11 @@ describe(`POST /api/offers`, () => {
         {
           error: `Validation Error`,
           fieldName: `price`,
+          errorMessage: `Введите целое натуральное число`
+        },
+        {
+          error: `Validation Error`,
+          fieldName: `price`,
           errorMessage: `Введите значение от 1000 до 1000000`
         },
         {
@@ -180,13 +185,13 @@ describe(`POST /api/offers`, () => {
         },
         {
           error: `Validation Error`,
-          fieldName: `rooms`,
-          errorMessage: `Введите значение от 0 до 1000`
+          fieldName: `features`,
+          errorMessage: `Недопустимое значение`
         },
         {
           error: `Validation Error`,
-          fieldName: `features`,
-          errorMessage: `Недопустимое значение`
+          fieldName: `rooms`,
+          errorMessage: `Введите значение от 0 до 1000`
         }
       ])
       );

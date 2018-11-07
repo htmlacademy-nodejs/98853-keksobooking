@@ -11,6 +11,7 @@ const toStream = require(`buffer-to-stream`);
 const IMAGE_MIMETYPES = [`image/png`, `image/jpg`, `image/jpeg`, `image/gif`];
 const DEFAULT_SKIP_VALUE = 0;
 const DEFAULT_LIMIT_VALUE = 20;
+const NUMERIC_FIELDS = [`rooms`, `price`, `guests`];
 
 const validateQueryArgument = (argument) => {
   if (!isInteger(Number(argument)) || !argument.length || argument < 0) {
@@ -81,12 +82,16 @@ const formatData = (req, res, _next) => {
     data.author.avatar = body.avatar;
   }
   data.offer = body;
+  NUMERIC_FIELDS.forEach((it) => {
+    if (body[it]) {
+      data.offer[it] = Number(body[it]);
+    }
+  });
   data.location = {x: coordinates[0], y: coordinates[1]};
   data.date = Date.now();
   delete data.offer.avatar;
   delete data.offer.location;
   delete data.offer.name;
-
   req.body = data;
   _next();
 };
@@ -120,6 +125,7 @@ module.exports = (router) => {
               await router.imagesStore.save(`${insertedId}-${it}`, toStream(file.buffer));
             });
           }
+          delete body._id;
           res.send(body);
         })
       ]
