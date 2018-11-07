@@ -2,7 +2,7 @@
 
 const {ValidationError, BadRequest} = require(`../errors.js`);
 const {GeneratorOptions} = require(`../data/generator-options.js`);
-const {getInvalidValues, isImageName} = require(`../utils.js`);
+const {getInvalidValues, isImageName, isInteger} = require(`../utils.js`);
 
 const TimeLimit = {
   MIN_HOURS: 0,
@@ -81,14 +81,17 @@ const deleteInvalidFields = (currentFields, invalids) => {
   return copy;
 };
 
+const isNaturalNumber = (data) => isInteger(Number(data)) && data >= 0 ? null : `Введите целое натуральное число`;
+
+
 const offersValidationSchema = {
   title: [isLengthInRange(ValidateOption.title.MIN_LENGTH, ValidateOption.title.MAX_LENGTH)],
   type: [isInArray(GeneratorOptions.TYPES)],
-  price: [isInRange(ValidateOption.price.MIN, ValidateOption.price.MAX)],
+  price: [isNaturalNumber, isInRange(ValidateOption.price.MIN, ValidateOption.price.MAX)],
   checkin: [isTimeFormat],
   checkout: [isTimeFormat],
-  rooms: [isInRange(ValidateOption.rooms.MIN, ValidateOption.rooms.MAX)],
-  guests: [],
+  rooms: [isNaturalNumber, isInRange(ValidateOption.rooms.MIN, ValidateOption.rooms.MAX)],
+  guests: [isNaturalNumber],
   description: [],
   address: [isLengthInRange(ValidateOption.address.MIN_LENGTH, ValidateOption.address.MAX_LENGTH)],
   features: [handleInvalidValues(GeneratorOptions.FEATURES), isArrayOfUniqueValues],

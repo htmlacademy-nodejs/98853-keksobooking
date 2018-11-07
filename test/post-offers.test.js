@@ -147,7 +147,7 @@ describe(`POST /api/offers`, () => {
       post(`/api/offers`).
       field(`title`, `Title length less than 30`).
       field(`type`, `box`).
-      field(`price`, `2000000`).
+      field(`price`, `dfsgdfg`).
       field(`checkin`, `122:00`).
       field(`checkout`, `17:00`).
       field(`features`, [`elevator`, `conditioner`, `telefon`]).
@@ -167,6 +167,11 @@ describe(`POST /api/offers`, () => {
           error: `Validation Error`,
           fieldName: `type`,
           errorMessage: `Введите одно из следующий значений: flat, palace, house, bungalo`
+        },
+        {
+          error: `Validation Error`,
+          fieldName: `price`,
+          errorMessage: `Введите целое натуральное число`
         },
         {
           error: `Validation Error`,
