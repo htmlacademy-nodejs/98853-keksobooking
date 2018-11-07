@@ -180,13 +180,13 @@ describe(`POST /api/offers`, () => {
         },
         {
           error: `Validation Error`,
-          fieldName: `rooms`,
-          errorMessage: `Введите значение от 0 до 1000`
+          fieldName: `features`,
+          errorMessage: `Недопустимое значение`
         },
         {
           error: `Validation Error`,
-          fieldName: `features`,
-          errorMessage: `Недопустимое значение`
+          fieldName: `rooms`,
+          errorMessage: `Введите значение от 0 до 1000`
         }
       ])
       );

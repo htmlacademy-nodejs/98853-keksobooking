@@ -2,7 +2,7 @@
 
 const {ValidationError, BadRequest} = require(`../errors.js`);
 const {GeneratorOptions} = require(`../data/generator-options.js`);
-const {getInvalidValue, isImageName} = require(`../utils.js`);
+const {getInvalidValues, isImageName} = require(`../utils.js`);
 
 const TimeLimit = {
   MIN_HOURS: 0,
@@ -62,15 +62,25 @@ const isArrayOfUniqueValues = (data) => {
   return null;
 };
 
-const getInvalidValues = (original) => (data) => {
+const handleInvalidValues = (original) => (data) => {
   if (data && data.length) {
-    const invalidValues = getInvalidValue(data, original);
+    const invalidValues = getInvalidValues(data, original);
     return !invalidValues.length ? null : `Недопустимое значение`;
   }
   return null;
 };
 
-// тут я убрал функцию IsRequired (так как проверку делаю отдельно)
+const deleteInvalidFields = (currentFields, invalids) => {
+  const copy = currentFields.slice();
+  if (invalids.length) {
+    invalids.forEach((it) => {
+      const index = copy.indexOf(it);
+      copy.splice(index, 1);
+    });
+  }
+  return copy;
+};
+
 const offersValidationSchema = {
   title: [isLengthInRange(ValidateOption.title.MIN_LENGTH, ValidateOption.title.MAX_LENGTH)],
   type: [isInArray(GeneratorOptions.TYPES)],
@@ -81,7 +91,7 @@ const offersValidationSchema = {
   guests: [],
   description: [],
   address: [isLengthInRange(ValidateOption.address.MIN_LENGTH, ValidateOption.address.MAX_LENGTH)],
-  features: [getInvalidValues(GeneratorOptions.FEATURES), isArrayOfUniqueValues],
+  features: [handleInvalidValues(GeneratorOptions.FEATURES), isArrayOfUniqueValues],
   avatar: [isImageFormat],
   preview: [isImageFormat],
   name: []
@@ -89,39 +99,39 @@ const offersValidationSchema = {
 
 const validate = (data) => {
   const errors = [];
-
   const possibleFields = Object.keys(offersValidationSchema);
   const dataFields = Object.keys(data);
+  let validFieldsInData = dataFields;
 
   if (!dataFields.length) {
     throw new BadRequest(`Нельзя отправить пустой объект`);
   }
 
-  const invalidValue = getInvalidValue(dataFields, possibleFields);
-  if (invalidValue.length) {
-    invalidValue.forEach((invalidField) => errors.push({fieldName: invalidField, errorMessage: `Недопустимое поле`}));
+  const invalidValues = getInvalidValues(dataFields, possibleFields);
+
+  if (invalidValues.length) {
+    invalidValues.forEach((invalidField) => errors.push({fieldName: invalidField, errorMessage: `Недопустимое поле`}));
+    validFieldsInData = deleteInvalidFields(dataFields, invalidValues);
   }
 
-  const emptyFields = getInvalidValue(REQUIRED_FIELDS, dataFields);
+  const emptyFields = getInvalidValues(REQUIRED_FIELDS, dataFields);
 
-  if (emptyFields.length) {
-    emptyFields.forEach((emptyField) => errors.push({fieldName: emptyField, errorMessage: `is required`}));
-  } else {
-    possibleFields.forEach((it) => {
-      const validateFunctions = offersValidationSchema[it];
-      if (validateFunctions.length) {
-        validateFunctions.forEach((fn) => {
-          const error = fn(data[it]);
-          if (error) {
-            errors.push({
-              fieldName: it,
-              errorMessage: error
-            });
-          }
-        });
-      }
-    });
-  }
+  emptyFields.forEach((emptyField) => errors.push({fieldName: emptyField, errorMessage: `is required`}));
+
+  validFieldsInData.forEach((it) => {
+    const validateFunctions = offersValidationSchema[it];
+    if (validateFunctions.length) {
+      validateFunctions.forEach((fn) => {
+        const error = fn(data[it]);
+        if (error) {
+          errors.push({
+            fieldName: it,
+            errorMessage: error
+          });
+        }
+      });
+    }
+  });
 
   if (errors.length) {
     throw new ValidationError(errors);
